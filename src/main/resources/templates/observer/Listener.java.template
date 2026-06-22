@@ -1,0 +1,15 @@
+${PACKAGE_DECL}
+
+/**
+ * Listener of {@code ${TYPE_NAME}} events.
+ *
+ * <p>Implement and {@link ${TYPE_NAME}Bus#subscribe} the instance; the bus
+ * will call {@link #on${TYPE_NAME}} for every published event.</p>
+ */
+@FunctionalInterface
+public interface ${TYPE_NAME}Listener {
+    void on${TYPE_NAME}(${TYPE_NAME}Event event);
+}
+
+/** Carrier record for the event payload. Replace the field as needed. */
+record ${TYPE_NAME}Event(String payload) { }

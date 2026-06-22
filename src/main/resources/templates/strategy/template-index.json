@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Strategy.java",     "template": "Strategy.java.template" },
+    { "fileName": "Default${TYPE_NAME}Strategy.java", "template": "DefaultStrategy.java.template" },
+    { "fileName": "Reverse${TYPE_NAME}Strategy.java", "template": "ReverseStrategy.java.template" }
+  ]
+}

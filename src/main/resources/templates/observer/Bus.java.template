@@ -1,0 +1,34 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Publish/subscribe hub for {@code ${TYPE_NAME}Event}s.
+ *
+ * <p>Iterates over a snapshot of the subscriber list so listeners can
+ * subscribe / unsubscribe during dispatch without throwing
+ * ConcurrentModificationException.</p>
+ */
+public final class ${TYPE_NAME}Bus {
+
+    private final List<${TYPE_NAME}Listener> listeners = new ArrayList<>();
+
+    public void subscribe(${TYPE_NAME}Listener l) {
+        listeners.add(l);
+    }
+
+    public void unsubscribe(${TYPE_NAME}Listener l) {
+        listeners.remove(l);
+    }
+
+    public void publish(${TYPE_NAME}Event event) {
+        for (${TYPE_NAME}Listener l : List.copyOf(listeners)) {
+            l.on${TYPE_NAME}(event);
+        }
+    }
+
+    public int subscriberCount() {
+        return listeners.size();
+    }
+}

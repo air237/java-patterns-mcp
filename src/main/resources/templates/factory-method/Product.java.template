@@ -1,0 +1,6 @@
+${PACKAGE_DECL}
+
+/** Product interface — what every concrete ${TYPE_NAME} must do. */
+public interface ${TYPE_NAME} {
+    String describe();
+}

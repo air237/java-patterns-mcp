@@ -1,0 +1,18 @@
+${PACKAGE_DECL}
+
+/** Concrete creator + concrete product bundled for a minimal working example. */
+public final class Default${TYPE_NAME}Creator extends ${TYPE_NAME}Creator {
+
+    @Override
+    protected ${TYPE_NAME} create${TYPE_NAME}() {
+        return new Default${TYPE_NAME}();
+    }
+
+    /** Default concrete product — replace describe() with real behaviour. */
+    private static final class Default${TYPE_NAME} implements ${TYPE_NAME} {
+        @Override
+        public String describe() {
+            return "default ${TYPE_NAME}";
+        }
+    }
+}

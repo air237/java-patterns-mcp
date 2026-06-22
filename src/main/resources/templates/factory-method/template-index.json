@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",            "template": "Product.java.template" },
+    { "fileName": "${TYPE_NAME}Creator.java",     "template": "Creator.java.template" },
+    { "fileName": "Default${TYPE_NAME}Creator.java", "template": "DefaultCreator.java.template" }
+  ]
+}

@@ -1,0 +1,55 @@
+${PACKAGE_DECL}
+
+/**
+ * Builder pattern — fluent step-by-step construction of an immutable
+ * {@link ${TYPE_NAME}} value object.
+ *
+ * <p>Replace the placeholder fields below with the real attributes of
+ * your domain object. Validation belongs in {@link Builder#build()} so
+ * callers never see a partially-constructed instance.</p>
+ */
+public final class ${TYPE_NAME} {
+
+    private final String name;
+    private final int    quantity;
+    private final boolean active;
+
+    private ${TYPE_NAME}(Builder b) {
+        this.name = b.name;
+        this.quantity = b.quantity;
+        this.active = b.active;
+    }
+
+    public String  name()     { return name; }
+    public int     quantity() { return quantity; }
+    public boolean active()   { return active; }
+
+    /** Entry point — {@code typeName} mirrors the example pattern: mandatory args via static factory. */
+    public static Builder builder(String name) {
+        return new Builder(name);
+    }
+
+    /** Static nested Builder — the fluent API for constructing a {@link ${TYPE_NAME}}. */
+    public static final class Builder {
+        private final String name;
+        private int    quantity = 1;
+        private boolean active  = true;
+
+        private Builder(String name) {
+            if (name == null || name.isBlank()) {
+                throw new IllegalArgumentException("name must not be blank");
+            }
+            this.name = name;
+        }
+
+        public Builder quantity(int q)    { this.quantity = q; return this; }
+        public Builder active(boolean a)  { this.active = a;    return this; }
+
+        public ${TYPE_NAME} build() {
+            if (quantity < 0) {
+                throw new IllegalStateException("quantity must be non-negative, got " + quantity);
+            }
+            return new ${TYPE_NAME}(this);
+        }
+    }
+}

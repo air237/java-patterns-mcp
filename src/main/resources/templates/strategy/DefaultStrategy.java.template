@@ -1,0 +1,13 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Default strategy — identity (returns a defensive copy of the input). */
+public final class Default${TYPE_NAME}Strategy implements ${TYPE_NAME}Strategy {
+
+    @Override
+    public List<${TYPE_NAME}> apply(List<${TYPE_NAME}> input) {
+        return new ArrayList<>(input);
+    }
+}

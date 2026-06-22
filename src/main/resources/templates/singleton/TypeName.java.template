@@ -1,0 +1,41 @@
+${PACKAGE_DECL}
+
+/**
+ * Thread-safe Singleton — Bill Pugh "initialization-on-demand holder" idiom.
+ *
+ * <p>This implementation is lazy, lock-free, and JLS-guaranteed to construct
+ * exactly one instance. Replace the placeholder logic in
+ * {@link #${TYPE_NAME}()} with whatever this singleton needs to do at
+ * construction time.</p>
+ */
+public final class ${TYPE_NAME} {
+
+    private final long createdAtNanos;
+
+    private ${TYPE_NAME}() {
+        // Defend against reflective construction of a second instance.
+        if (Holder.INSTANCE != null) {
+            throw new IllegalStateException("${TYPE_NAME} already constructed.");
+        }
+        this.createdAtNanos = System.nanoTime();
+    }
+
+    public static ${TYPE_NAME} getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    public long createdAtNanos() {
+        return createdAtNanos;
+    }
+
+    /**
+     * Inner holder class — loaded by the JVM only on the first call to
+     * {@link #getInstance()}. Class initialization is single-threaded by
+     * spec, so this is both lazy and thread-safe with no explicit locking.
+     */
+    private static final class Holder {
+        private static final ${TYPE_NAME} INSTANCE = new ${TYPE_NAME}();
+
+        private Holder() { /* no instances */ }
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Listener.java", "template": "Listener.java.template" },
+    { "fileName": "${TYPE_NAME}Bus.java",      "template": "Bus.java.template" }
+  ]
+}

@@ -1,0 +1,16 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/** Alternative strategy — returns the input in reverse order. */
+public final class Reverse${TYPE_NAME}Strategy implements ${TYPE_NAME}Strategy {
+
+    @Override
+    public List<${TYPE_NAME}> apply(List<${TYPE_NAME}> input) {
+        List<${TYPE_NAME}> copy = new ArrayList<>(input);
+        Collections.reverse(copy);
+        return copy;
+    }
+}

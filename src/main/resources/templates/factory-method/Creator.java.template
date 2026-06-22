@@ -1,0 +1,18 @@
+${PACKAGE_DECL}
+
+/**
+ * Abstract creator. Defines the algorithm in {@link #operate()} and
+ * delegates the choice of concrete {@link ${TYPE_NAME}} to subclasses
+ * via the {@link #create${TYPE_NAME}()} factory method.
+ */
+public abstract class ${TYPE_NAME}Creator {
+
+    /** Template method — locked algorithm structure. */
+    public String operate() {
+        ${TYPE_NAME} product = create${TYPE_NAME}();
+        return "[${TYPE_NAME}Creator] " + product.describe();
+    }
+
+    /** The factory method — each subclass returns its own concrete product. */
+    protected abstract ${TYPE_NAME} create${TYPE_NAME}();
+}

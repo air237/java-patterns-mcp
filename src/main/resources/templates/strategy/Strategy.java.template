@@ -1,0 +1,12 @@
+${PACKAGE_DECL}
+
+/**
+ * Strategy interface for operations on a {@code ${TYPE_NAME}} domain.
+ *
+ * <p>Pluggable algorithm contract — implementers vary the behaviour
+ * (sort order, pricing rule, route planner, etc.) while keeping the
+ * client code unchanged.</p>
+ */
+public interface ${TYPE_NAME}Strategy {
+    java.util.List<${TYPE_NAME}> apply(java.util.List<${TYPE_NAME}> input);
+}

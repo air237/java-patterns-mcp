@@ -30,7 +30,7 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 | 2 | Pattern catalog model (23 GoF + metadata) | ✅ done |
 | 3 | `list_patterns` tool | ✅ done |
 | 4 | `pattern_examples` tool (canonical, compilable) | ✅ all 23 patterns |
-| 5 | `generate_pattern` tool (JTE templates) | ⏳ planned |
+| 5 | `generate_pattern` tool (JTE templates) | 🟡 5 patterns wired (Singleton, Builder, Strategy, Observer, Factory Method) |
 | 6-8 | All 23 GoF patterns implemented + tested | ⏳ planned |
 | 9 | `detect_pattern` (JavaParser AST visitors) | ⏳ planned |
 | 10 | `validate_pattern` (pattern-specific rules) | ⏳ planned |
