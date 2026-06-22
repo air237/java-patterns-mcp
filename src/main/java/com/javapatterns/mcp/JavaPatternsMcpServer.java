@@ -1,6 +1,9 @@
 package com.javapatterns.mcp;
 
+import com.javapatterns.mcp.catalog.PatternRegistry;
+import com.javapatterns.mcp.tools.ListPatternsTool;
 import com.javapatterns.mcp.tools.PingTool;
+import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.McpSyncServer;
@@ -42,12 +45,12 @@ public final class JavaPatternsMcpServer {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        log.info("{} {} starting (Phase 1: stdio transport + ping tool)", SERVER_NAME, SERVER_VERSION);
+        log.info("{} {} starting (Phase 3: stdio + ping + list_patterns)", SERVER_NAME, SERVER_VERSION);
 
-        McpServerTransportProvider transport =
-            new StdioServerTransportProvider(McpJsonMappers.defaultMapper());
+        McpJsonMapper jsonMapper = McpJsonMappers.defaultMapper();
+        McpServerTransportProvider transport = new StdioServerTransportProvider(jsonMapper);
 
-        McpSyncServer server = buildServer(transport);
+        McpSyncServer server = buildServer(transport, jsonMapper);
         log.info("MCP server ready, waiting for client over stdio.");
 
         // The stdio transport itself runs on background schedulers; the main thread
@@ -70,20 +73,21 @@ public final class JavaPatternsMcpServer {
 
     /**
      * Builds the {@link McpSyncServer} with the given transport and registers
-     * the Phase 1 tool set. Package-private so the integration test can build a
-     * server backed by an in-memory transport without going through stdio.
+     * the currently wired tool set. Package-private so the integration test can
+     * build a server backed by an alternative transport without going through stdio.
      */
-    static McpSyncServer buildServer(McpServerTransportProvider transport) {
-        // Phase 1: only `ping` is wired. The supplier is wired AFTER the tool
-        // specs are registered so it can report the live registry.
-        List<String> phase1Tools = List.of(PingTool.NAME);
+    static McpSyncServer buildServer(McpServerTransportProvider transport, McpJsonMapper jsonMapper) {
+        List<String> registeredTools = List.of(PingTool.NAME, ListPatternsTool.NAME);
 
         McpServerFeatures.SyncToolSpecification ping =
-            new PingTool(SERVER_NAME, SERVER_VERSION, () -> phase1Tools).specification();
+            new PingTool(SERVER_NAME, SERVER_VERSION, () -> registeredTools).specification();
+
+        McpServerFeatures.SyncToolSpecification listPatterns =
+            new ListPatternsTool(PatternRegistry.getInstance(), jsonMapper).specification();
 
         return McpServer.sync(transport)
             .serverInfo(SERVER_NAME, SERVER_VERSION)
-            .tools(ping)
+            .tools(ping, listPatterns)
             .build();
     }
 }

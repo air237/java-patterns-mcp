@@ -27,8 +27,8 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 |---|---|---|
 | 0 | Project skeleton (pom.xml, structure, licence) | ✅ done |
 | 1 | MCP bootstrap + stdio transport + `ping` tool | ✅ done |
-| 2 | Pattern catalog model (23 GoF + metadata) | ⏳ planned |
-| 3 | `list_patterns` tool | ⏳ planned |
+| 2 | Pattern catalog model (23 GoF + metadata) | ✅ done |
+| 3 | `list_patterns` tool | ✅ done |
 | 4 | `pattern_examples` tool (canonical, compilable) | ⏳ planned |
 | 5 | `generate_pattern` tool (JTE templates) | ⏳ planned |
 | 6-8 | All 23 GoF patterns implemented + tested | ⏳ planned |
@@ -58,23 +58,24 @@ mvn clean package
 # produces: target/java-patterns-mcp-0.1.0-SNAPSHOT-all.jar
 ```
 
-## Try it (Phase 1 — only `ping` is wired)
+## Try it (Phase 3 — `ping` and `list_patterns` are wired)
 
-After `mvn package`, smoke-test directly with shell-piped JSON-RPC:
+After `mvn package`, smoke-test directly with shell-piped JSON-RPC.
+Note: the `(... ; sleep N)` wrapper keeps stdin open long enough for the
+reactive pipeline to flush each `tools/call` response.
 
 ```bash
-java -jar target/java-patterns-mcp-0.1.0-SNAPSHOT-all.jar <<'EOF'
-{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"smoke","version":"0.0.1"}}}
-{"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/list"}
-{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"ping","arguments":{}}}
-EOF
+(
+  echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"smoke","version":"0.0.1"}}}'
+  echo '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+  echo '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+  echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_patterns","arguments":{"category":"Creational"}}}'
+  sleep 3
+) | java -jar target/java-patterns-mcp-0.1.0-SNAPSHOT-all.jar
 ```
 
-You should see three JSON-RPC responses on stdout:
-1. Server info + protocol version.
-2. The `ping` tool description.
-3. `"java-patterns-mcp 0.1.0 — alive. Registered tools: [ping]"`.
+Expected: four JSON-RPC responses on stdout — the last one a `list_patterns`
+result with `count: 5` and the five canonical Creational patterns.
 
 ## Wire into OpenCode
 

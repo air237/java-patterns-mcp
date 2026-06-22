@@ -1,0 +1,144 @@
+{
+  "patterns": [
+    {
+      "pattern": "ABSTRACT_FACTORY",
+      "intent": "Lets you produce families of related objects without specifying their concrete classes.",
+      "problem": "You need to create families of related products (e.g. ModernChair + ModernSofa, VictorianChair + VictorianSofa) and want to guarantee they fit together, without coupling client code to specific concrete classes.",
+      "aliases": ["Kit"]
+    },
+    {
+      "pattern": "BUILDER",
+      "intent": "Lets you construct complex objects step by step. The pattern allows you to produce different types and representations of an object using the same construction code.",
+      "problem": "You have an object with many optional / mutually-dependent fields and a telescoping constructor (or setter soup) is unreadable and error-prone.",
+      "aliases": []
+    },
+    {
+      "pattern": "FACTORY_METHOD",
+      "intent": "Provides an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created.",
+      "problem": "You want a class to delegate the choice of concrete subclass to its subclasses, so the framework can be open for extension but closed for modification.",
+      "aliases": ["Virtual Constructor"]
+    },
+    {
+      "pattern": "PROTOTYPE",
+      "intent": "Lets you copy existing objects without making your code dependent on their classes.",
+      "problem": "You need to clone an object whose concrete class is not known at compile time, or whose internal fields are private and not reachable through the normal constructor.",
+      "aliases": ["Clone"]
+    },
+    {
+      "pattern": "SINGLETON",
+      "intent": "Lets you ensure that a class has only one instance, while providing a global access point to this instance.",
+      "problem": "You need exactly one instance of a class (e.g. a logger, configuration registry, connection pool) shared across the whole JVM, accessible from anywhere and constructed lazily and thread-safely.",
+      "aliases": ["Holder", "Bill Pugh Singleton"]
+    },
+
+    {
+      "pattern": "ADAPTER",
+      "intent": "Allows objects with incompatible interfaces to collaborate.",
+      "problem": "You have a class with an interface the client cannot use directly (legacy library, third-party API, different naming convention) and you cannot or do not want to change either side.",
+      "aliases": ["Wrapper"]
+    },
+    {
+      "pattern": "BRIDGE",
+      "intent": "Lets you split a large class or a set of closely related classes into two separate hierarchies — abstraction and implementation — which can be developed independently of each other.",
+      "problem": "Your class hierarchy is growing along two independent dimensions (e.g. Shape × Renderer, Device × Remote) and inheritance creates a combinatorial explosion of subclasses.",
+      "aliases": []
+    },
+    {
+      "pattern": "COMPOSITE",
+      "intent": "Lets you compose objects into tree structures and then work with these structures as if they were individual objects.",
+      "problem": "You need to treat leaves and composites uniformly (a single File and a Folder of files both respond to `size()`, `render()`, `delete()` …) without scattering type checks.",
+      "aliases": ["Object Tree"]
+    },
+    {
+      "pattern": "DECORATOR",
+      "intent": "Lets you attach new behaviors to objects by placing these objects inside special wrapper objects that contain the behaviors.",
+      "problem": "You want to add responsibilities (logging, caching, encryption, …) to individual objects at runtime, without subclass explosion and without changing existing code.",
+      "aliases": ["Wrapper"]
+    },
+    {
+      "pattern": "FACADE",
+      "intent": "Provides a simplified interface to a library, a framework, or any other complex set of classes.",
+      "problem": "A subsystem is hard to use directly (many classes, complex initialization, brittle ordering). You want one stable entry point that hides the mess.",
+      "aliases": []
+    },
+    {
+      "pattern": "FLYWEIGHT",
+      "intent": "Lets you fit more objects into the available amount of RAM by sharing common parts of state between multiple objects instead of keeping all of the data in each object.",
+      "problem": "You need to create huge numbers of similar objects (game particles, glyphs, tree leaves) and intrinsic state can be shared across them while extrinsic state is passed in per call.",
+      "aliases": ["Cache"]
+    },
+    {
+      "pattern": "PROXY",
+      "intent": "Lets you provide a substitute or placeholder for another object. A proxy controls access to the original object, allowing you to perform something either before or after the request gets through to the original object.",
+      "problem": "You need lazy loading, access control, logging, caching, or remote-invocation around an object — without forcing every caller to know about it.",
+      "aliases": ["Surrogate"]
+    },
+
+    {
+      "pattern": "CHAIN_OF_RESPONSIBILITY",
+      "intent": "Lets you pass requests along a chain of handlers. Upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain.",
+      "problem": "Several objects can handle a request and you do not want callers to know which one (e.g. servlet filters, validation pipelines, authorization layers).",
+      "aliases": ["CoR"]
+    },
+    {
+      "pattern": "COMMAND",
+      "intent": "Turns a request into a stand-alone object that contains all information about the request. This transformation lets you pass requests as method arguments, delay or queue a request's execution, and support undoable operations.",
+      "problem": "You need undo/redo, scheduled execution, logging of operations, or to decouple GUI elements from the business logic they trigger.",
+      "aliases": ["Action", "Transaction"]
+    },
+    {
+      "pattern": "INTERPRETER",
+      "intent": "Given a language, defines a representation for its grammar along with an interpreter that uses the representation to interpret sentences in the language.",
+      "problem": "You need to evaluate sentences in a simple, recurring language (boolean expressions, query DSLs, formula parsers) and the grammar is stable enough that a class per rule pays off.",
+      "aliases": []
+    },
+    {
+      "pattern": "ITERATOR",
+      "intent": "Lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.).",
+      "problem": "Clients should walk over the elements of a complex aggregate (tree, graph, custom container) without learning its internal structure.",
+      "aliases": ["Cursor"]
+    },
+    {
+      "pattern": "MEDIATOR",
+      "intent": "Lets you reduce chaotic dependencies between objects. The pattern restricts direct communications between the objects and forces them to collaborate only via a mediator object.",
+      "problem": "Many objects communicate in many-to-many ways (typical UI forms, traffic control, chat rooms) and you want to centralize the protocol.",
+      "aliases": ["Controller"]
+    },
+    {
+      "pattern": "MEMENTO",
+      "intent": "Lets you save and restore the previous state of an object without revealing the details of its implementation.",
+      "problem": "You need undo/snapshot capability on an object whose state is private and you do not want to leak internals via getters.",
+      "aliases": ["Snapshot", "Token"]
+    },
+    {
+      "pattern": "OBSERVER",
+      "intent": "Lets you define a subscription mechanism to notify multiple objects about any events that happen to the object they're observing.",
+      "problem": "When the state of one object changes, an unknown set of other objects must react — but the subject must not know its observers' concrete types.",
+      "aliases": ["Publish-Subscribe", "Pub/Sub", "Listener"]
+    },
+    {
+      "pattern": "STATE",
+      "intent": "Lets an object alter its behavior when its internal state changes. It appears as if the object changed its class.",
+      "problem": "An object's behavior depends on its state and the code is a tangle of `switch` statements over a state enum.",
+      "aliases": []
+    },
+    {
+      "pattern": "STRATEGY",
+      "intent": "Lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable.",
+      "problem": "You have several variants of the same algorithm (sorting orders, route planners, pricing rules) and the choice should be runtime-pluggable.",
+      "aliases": ["Policy"]
+    },
+    {
+      "pattern": "TEMPLATE_METHOD",
+      "intent": "Defines the skeleton of an algorithm in the superclass but lets subclasses override specific steps of the algorithm without changing its structure.",
+      "problem": "Several subclasses follow the same multi-step algorithm but differ in some steps; you want to lock the high-level flow while letting subclasses customize hooks.",
+      "aliases": []
+    },
+    {
+      "pattern": "VISITOR",
+      "intent": "Lets you separate algorithms from the objects on which they operate.",
+      "problem": "You need to add new operations to a stable class hierarchy without modifying the hierarchy itself, especially when the operations vary much more often than the structure.",
+      "aliases": ["Double Dispatch"]
+    }
+  ]
+}
