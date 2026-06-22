@@ -10,6 +10,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# javac output (e.g. from PatternExamplesCompileTest when run with stray cwd)
+*.class
+
 # IDE - IntelliJ
 .idea/
 *.iml

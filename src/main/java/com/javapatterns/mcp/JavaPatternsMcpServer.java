@@ -1,7 +1,9 @@
 package com.javapatterns.mcp;
 
+import com.javapatterns.mcp.catalog.PatternExamplesLoader;
 import com.javapatterns.mcp.catalog.PatternRegistry;
 import com.javapatterns.mcp.tools.ListPatternsTool;
+import com.javapatterns.mcp.tools.PatternExamplesTool;
 import com.javapatterns.mcp.tools.PingTool;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.server.McpServer;
@@ -77,7 +79,11 @@ public final class JavaPatternsMcpServer {
      * build a server backed by an alternative transport without going through stdio.
      */
     static McpSyncServer buildServer(McpServerTransportProvider transport, McpJsonMapper jsonMapper) {
-        List<String> registeredTools = List.of(PingTool.NAME, ListPatternsTool.NAME);
+        List<String> registeredTools = List.of(
+            PingTool.NAME,
+            ListPatternsTool.NAME,
+            PatternExamplesTool.NAME
+        );
 
         McpServerFeatures.SyncToolSpecification ping =
             new PingTool(SERVER_NAME, SERVER_VERSION, () -> registeredTools).specification();
@@ -85,9 +91,12 @@ public final class JavaPatternsMcpServer {
         McpServerFeatures.SyncToolSpecification listPatterns =
             new ListPatternsTool(PatternRegistry.getInstance(), jsonMapper).specification();
 
+        McpServerFeatures.SyncToolSpecification patternExamples =
+            new PatternExamplesTool(PatternExamplesLoader.getInstance(), jsonMapper).specification();
+
         return McpServer.sync(transport)
             .serverInfo(SERVER_NAME, SERVER_VERSION)
-            .tools(ping, listPatterns)
+            .tools(ping, listPatterns, patternExamples)
             .build();
     }
 }

@@ -1,0 +1,119 @@
+{
+  "examples": [
+    {
+      "pattern": "SINGLETON",
+      "files": [
+        {
+          "fileName": "Singleton.java",
+          "packageName": "com.javapatterns.examples.singleton",
+          "path": "examples/singleton/Singleton.java",
+          "note": "Thread-safe Bill-Pugh holder idiom — lazy, lock-free, JLS-guaranteed single initialization"
+        }
+      ]
+    },
+    {
+      "pattern": "FACTORY_METHOD",
+      "files": [
+        {
+          "fileName": "Dialog.java",
+          "packageName": "com.javapatterns.examples.factory_method",
+          "path": "examples/factory-method/Dialog.java",
+          "note": "Abstract creator that defines render() and delegates createButton() to subclasses"
+        },
+        {
+          "fileName": "Button.java",
+          "packageName": "com.javapatterns.examples.factory_method",
+          "path": "examples/factory-method/Button.java",
+          "note": "Product interface"
+        },
+        {
+          "fileName": "HtmlButton.java",
+          "packageName": "com.javapatterns.examples.factory_method",
+          "path": "examples/factory-method/HtmlButton.java",
+          "note": "Concrete product"
+        },
+        {
+          "fileName": "HtmlDialog.java",
+          "packageName": "com.javapatterns.examples.factory_method",
+          "path": "examples/factory-method/HtmlDialog.java",
+          "note": "Concrete creator producing HtmlButton"
+        },
+        {
+          "fileName": "WindowsButton.java",
+          "packageName": "com.javapatterns.examples.factory_method",
+          "path": "examples/factory-method/WindowsButton.java",
+          "note": "Concrete product"
+        },
+        {
+          "fileName": "WindowsDialog.java",
+          "packageName": "com.javapatterns.examples.factory_method",
+          "path": "examples/factory-method/WindowsDialog.java",
+          "note": "Concrete creator producing WindowsButton"
+        }
+      ]
+    },
+    {
+      "pattern": "ABSTRACT_FACTORY",
+      "files": [
+        {
+          "fileName": "GUIFactory.java",
+          "packageName": "com.javapatterns.examples.abstract_factory",
+          "path": "examples/abstract-factory/GUIFactory.java",
+          "note": "Abstract factory declaring a family (Button + Checkbox)"
+        },
+        {
+          "fileName": "Button.java",
+          "packageName": "com.javapatterns.examples.abstract_factory",
+          "path": "examples/abstract-factory/Button.java",
+          "note": "Abstract product"
+        },
+        {
+          "fileName": "Checkbox.java",
+          "packageName": "com.javapatterns.examples.abstract_factory",
+          "path": "examples/abstract-factory/Checkbox.java",
+          "note": "Abstract product"
+        },
+        {
+          "fileName": "MacOSFactory.java",
+          "packageName": "com.javapatterns.examples.abstract_factory",
+          "path": "examples/abstract-factory/MacOSFactory.java",
+          "note": "Concrete factory producing macOS-styled products"
+        },
+        {
+          "fileName": "WindowsFactory.java",
+          "packageName": "com.javapatterns.examples.abstract_factory",
+          "path": "examples/abstract-factory/WindowsFactory.java",
+          "note": "Concrete factory producing Windows-styled products"
+        }
+      ]
+    },
+    {
+      "pattern": "BUILDER",
+      "files": [
+        {
+          "fileName": "Car.java",
+          "packageName": "com.javapatterns.examples.builder",
+          "path": "examples/builder/Car.java",
+          "note": "Immutable Car with a fluent static-nested Builder; required ctor args + optional setters + validation in build()"
+        }
+      ]
+    },
+    {
+      "pattern": "PROTOTYPE",
+      "files": [
+        {
+          "fileName": "Shape.java",
+          "packageName": "com.javapatterns.examples.prototype",
+          "path": "examples/prototype/Shape.java",
+          "note": "Abstract base with copy-constructor and clone() contract, equals/hashCode honoured"
+        },
+        {
+          "fileName": "Circle.java",
+          "packageName": "com.javapatterns.examples.prototype",
+          "path": "examples/prototype/Circle.java",
+          "note": "Concrete Shape — chains copy-constructor to super, adds own state (radius)"
+        }
+      ]
+    }
+  ]
+}
