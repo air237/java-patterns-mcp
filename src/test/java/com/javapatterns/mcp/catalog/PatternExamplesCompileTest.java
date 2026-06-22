@@ -41,6 +41,18 @@ class PatternExamplesCompileTest {
     }
 
     @Test
+    @DisplayName("all 7 Structural patterns have examples")
+    void structuralPatternsAreCovered() {
+        assertThat(loader.forPattern(Pattern.ADAPTER)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.BRIDGE)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.COMPOSITE)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.DECORATOR)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.FACADE)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.FLYWEIGHT)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.PROXY)).isNotEmpty();
+    }
+
+    @Test
     @DisplayName("every example file declares the package the index claims it does")
     void packageDeclarationsMatchIndex() {
         for (Pattern p : loader.coveredPatterns()) {

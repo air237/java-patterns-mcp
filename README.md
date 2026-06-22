@@ -29,7 +29,7 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 | 1 | MCP bootstrap + stdio transport + `ping` tool | ✅ done |
 | 2 | Pattern catalog model (23 GoF + metadata) | ✅ done |
 | 3 | `list_patterns` tool | ✅ done |
-| 4 | `pattern_examples` tool (canonical, compilable) | 🟡 Creational only |
+| 4 | `pattern_examples` tool (canonical, compilable) | 🟡 Creational + Structural (12/23) |
 | 5 | `generate_pattern` tool (JTE templates) | ⏳ planned |
 | 6-8 | All 23 GoF patterns implemented + tested | ⏳ planned |
 | 9 | `detect_pattern` (JavaParser AST visitors) | ⏳ planned |

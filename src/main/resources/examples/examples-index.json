@@ -114,6 +114,192 @@
           "note": "Concrete Shape — chains copy-constructor to super, adds own state (radius)"
         }
       ]
+    },
+
+    {
+      "pattern": "ADAPTER",
+      "files": [
+        {
+          "fileName": "RoundPeg.java",
+          "packageName": "com.javapatterns.examples.adapter",
+          "path": "examples/adapter/RoundPeg.java",
+          "note": "Target interface the client expects"
+        },
+        {
+          "fileName": "SquarePeg.java",
+          "packageName": "com.javapatterns.examples.adapter",
+          "path": "examples/adapter/SquarePeg.java",
+          "note": "Legacy class with an incompatible API"
+        },
+        {
+          "fileName": "SquarePegAdapter.java",
+          "packageName": "com.javapatterns.examples.adapter",
+          "path": "examples/adapter/SquarePegAdapter.java",
+          "note": "Adapter exposing a RoundPeg surface over a wrapped SquarePeg (radius = side*√2/2)"
+        },
+        {
+          "fileName": "RoundHole.java",
+          "packageName": "com.javapatterns.examples.adapter",
+          "path": "examples/adapter/RoundHole.java",
+          "note": "Client that only knows about RoundPeg"
+        }
+      ]
+    },
+    {
+      "pattern": "BRIDGE",
+      "files": [
+        {
+          "fileName": "Shape.java",
+          "packageName": "com.javapatterns.examples.bridge",
+          "path": "examples/bridge/Shape.java",
+          "note": "Abstraction — holds an implementor via composition, not inheritance"
+        },
+        {
+          "fileName": "Renderer.java",
+          "packageName": "com.javapatterns.examples.bridge",
+          "path": "examples/bridge/Renderer.java",
+          "note": "Implementor interface — low-level drawing API"
+        },
+        {
+          "fileName": "Circle.java",
+          "packageName": "com.javapatterns.examples.bridge",
+          "path": "examples/bridge/Circle.java",
+          "note": "Refined abstraction"
+        },
+        {
+          "fileName": "Square.java",
+          "packageName": "com.javapatterns.examples.bridge",
+          "path": "examples/bridge/Square.java",
+          "note": "Refined abstraction"
+        },
+        {
+          "fileName": "VectorRenderer.java",
+          "packageName": "com.javapatterns.examples.bridge",
+          "path": "examples/bridge/VectorRenderer.java",
+          "note": "Concrete implementor — SVG output"
+        },
+        {
+          "fileName": "RasterRenderer.java",
+          "packageName": "com.javapatterns.examples.bridge",
+          "path": "examples/bridge/RasterRenderer.java",
+          "note": "Concrete implementor — raster output"
+        }
+      ]
+    },
+    {
+      "pattern": "COMPOSITE",
+      "files": [
+        {
+          "fileName": "Component.java",
+          "packageName": "com.javapatterns.examples.composite",
+          "path": "examples/composite/Component.java",
+          "note": "Common interface uniting leaves and composites"
+        },
+        {
+          "fileName": "Product.java",
+          "packageName": "com.javapatterns.examples.composite",
+          "path": "examples/composite/Product.java",
+          "note": "Leaf with its own cost"
+        },
+        {
+          "fileName": "Box.java",
+          "packageName": "com.javapatterns.examples.composite",
+          "path": "examples/composite/Box.java",
+          "note": "Composite that recursively sums child costs"
+        }
+      ]
+    },
+    {
+      "pattern": "DECORATOR",
+      "files": [
+        {
+          "fileName": "Notifier.java",
+          "packageName": "com.javapatterns.examples.decorator",
+          "path": "examples/decorator/Notifier.java",
+          "note": "Component interface"
+        },
+        {
+          "fileName": "EmailNotifier.java",
+          "packageName": "com.javapatterns.examples.decorator",
+          "path": "examples/decorator/EmailNotifier.java",
+          "note": "Concrete component — base behaviour"
+        },
+        {
+          "fileName": "NotifierDecorator.java",
+          "packageName": "com.javapatterns.examples.decorator",
+          "path": "examples/decorator/NotifierDecorator.java",
+          "note": "Base decorator — holds the wrapped Notifier and forwards by default"
+        },
+        {
+          "fileName": "SmsDecorator.java",
+          "packageName": "com.javapatterns.examples.decorator",
+          "path": "examples/decorator/SmsDecorator.java",
+          "note": "Concrete decorator — adds SMS channel on top of any Notifier"
+        },
+        {
+          "fileName": "SlackDecorator.java",
+          "packageName": "com.javapatterns.examples.decorator",
+          "path": "examples/decorator/SlackDecorator.java",
+          "note": "Concrete decorator — adds Slack channel; decorators stack"
+        }
+      ]
+    },
+    {
+      "pattern": "FACADE",
+      "files": [
+        {
+          "fileName": "OrderFacade.java",
+          "packageName": "com.javapatterns.examples.facade",
+          "path": "examples/facade/OrderFacade.java",
+          "note": "Single-call placeOrder() hides three internal subsystems (inventory, payment, shipping)"
+        }
+      ]
+    },
+    {
+      "pattern": "FLYWEIGHT",
+      "files": [
+        {
+          "fileName": "TreeType.java",
+          "packageName": "com.javapatterns.examples.flyweight",
+          "path": "examples/flyweight/TreeType.java",
+          "note": "Flyweight — immutable shared intrinsic state (name, texture, color)"
+        },
+        {
+          "fileName": "TreeTypeFactory.java",
+          "packageName": "com.javapatterns.examples.flyweight",
+          "path": "examples/flyweight/TreeTypeFactory.java",
+          "note": "Flyweight factory — returns a shared TreeType per (name,texture,color) key"
+        },
+        {
+          "fileName": "Tree.java",
+          "packageName": "com.javapatterns.examples.flyweight",
+          "path": "examples/flyweight/Tree.java",
+          "note": "Context object holding extrinsic state (x, y) plus a reference to the shared flyweight"
+        }
+      ]
+    },
+    {
+      "pattern": "PROXY",
+      "files": [
+        {
+          "fileName": "Service.java",
+          "packageName": "com.javapatterns.examples.proxy",
+          "path": "examples/proxy/Service.java",
+          "note": "Shared interface — both real and proxy implement it"
+        },
+        {
+          "fileName": "ExpensiveService.java",
+          "packageName": "com.javapatterns.examples.proxy",
+          "path": "examples/proxy/ExpensiveService.java",
+          "note": "The real subject — pretend each call hits a network or a DB"
+        },
+        {
+          "fileName": "CachingServiceProxy.java",
+          "packageName": "com.javapatterns.examples.proxy",
+          "path": "examples/proxy/CachingServiceProxy.java",
+          "note": "Caching proxy — same Service surface, but hits the real one only on cache miss"
+        }
+      ]
     }
   ]
 }
