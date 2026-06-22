@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Allow manually re-running the workflow from the Actions tab.
+  workflow_dispatch:
+
+# Cancel in-progress runs on the same branch when a newer commit arrives.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & test (JDK 21, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Show toolchain versions
+        run: |
+          java -version
+          mvn -version
+
+      # The shaded fat-jar is produced as part of `package`; `verify`
+      # then re-runs the test phase and any verification plugins.
+      # `-B` = batch mode (no ANSI),  `-ntp` = no transfer progress
+      # (keeps the log noise out of the CI output).
+      - name: Build, test, package
+        run: mvn -B -ntp clean verify
+
+      - name: Upload Surefire test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload shaded fat-jar
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-patterns-mcp-jar
+          path: target/java-patterns-mcp-*-all.jar
+          if-no-files-found: error
+          retention-days: 14

@@ -5,6 +5,7 @@
 > **AST-based detection**, **validation**, and **anti-pattern refactoring**
 > for Java codebases.
 
+[![CI](https://github.com/air237/java-patterns-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/air237/java-patterns-mcp/actions/workflows/ci.yml)
 [![Java 21](https://img.shields.io/badge/Java-21%20LTS-blue)](https://openjdk.org/projects/jdk/21/)
 [![MCP](https://img.shields.io/badge/MCP-2.0.0-purple)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
@@ -35,7 +36,7 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 | 9  | `validate_pattern` (3 validators: Singleton, Builder, Observer) | ✅ done |
 | 10 | `refactor_to_pattern` (5 refactorings: Singleton×3, Builder, Observer) | ✅ done |
 | 11 | Broadened coverage: +6 detectors (Adapter, Decorator, Proxy, Template Method, State, Command), +3 generators (Decorator, State, Command), +2 validators (Strategy, Factory Method) | ✅ done |
-| 12 | GitHub Actions CI | ⏳ planned |
+| 12 | GitHub Actions CI (JDK 21, Ubuntu, `mvn verify`, artifact upload) | ✅ done |
 | 13 | Maven Central publication | ⏳ planned |
 
 ## Tools (target API)
