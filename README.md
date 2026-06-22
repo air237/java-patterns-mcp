@@ -34,7 +34,7 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 | 6-8 | All 23 GoF patterns implemented + tested | ⏳ planned |
 | 9 | `detect_pattern` (JavaParser AST visitors) | 🟡 6 detectors (Singleton, Builder, Factory Method, Strategy, Observer, Composite) |
 | 10 | `validate_pattern` (pattern-specific rules) | 🟡 3 validators (Singleton, Builder, Observer) |
-| 11 | `refactor_to_pattern` (anti-pattern → pattern) | ⏳ planned |
+| 11 | `refactor_to_pattern` (anti-pattern → pattern) | 🟡 5 refactorings (Singleton×3, Builder, Observer) |
 | 12-13 | Packaging, OpenCode config example, CI | ⏳ planned |
 
 ## Tools (target API)

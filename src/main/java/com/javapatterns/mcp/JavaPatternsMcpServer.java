@@ -4,11 +4,13 @@ import com.javapatterns.mcp.catalog.PatternExamplesLoader;
 import com.javapatterns.mcp.catalog.PatternRegistry;
 import com.javapatterns.mcp.detect.PatternDetectionEngine;
 import com.javapatterns.mcp.generate.PatternGenerator;
+import com.javapatterns.mcp.refactor.PatternRefactoringEngine;
 import com.javapatterns.mcp.tools.DetectPatternTool;
 import com.javapatterns.mcp.tools.GeneratePatternTool;
 import com.javapatterns.mcp.tools.ListPatternsTool;
 import com.javapatterns.mcp.tools.PatternExamplesTool;
 import com.javapatterns.mcp.tools.PingTool;
+import com.javapatterns.mcp.tools.RefactorPatternTool;
 import com.javapatterns.mcp.tools.ValidatePatternTool;
 import com.javapatterns.mcp.validate.PatternValidationEngine;
 import io.modelcontextprotocol.json.McpJsonMapper;
@@ -91,7 +93,8 @@ public final class JavaPatternsMcpServer {
             PatternExamplesTool.NAME,
             GeneratePatternTool.NAME,
             DetectPatternTool.NAME,
-            ValidatePatternTool.NAME
+            ValidatePatternTool.NAME,
+            RefactorPatternTool.NAME
         );
 
         McpServerFeatures.SyncToolSpecification ping =
@@ -112,9 +115,13 @@ public final class JavaPatternsMcpServer {
         McpServerFeatures.SyncToolSpecification validatePattern =
             new ValidatePatternTool(PatternValidationEngine.getInstance(), jsonMapper).specification();
 
+        McpServerFeatures.SyncToolSpecification refactorPattern =
+            new RefactorPatternTool(PatternRefactoringEngine.getInstance(), jsonMapper).specification();
+
         return McpServer.sync(transport)
             .serverInfo(SERVER_NAME, SERVER_VERSION)
-            .tools(ping, listPatterns, patternExamples, generatePattern, detectPattern, validatePattern)
+            .tools(ping, listPatterns, patternExamples, generatePattern,
+                   detectPattern, validatePattern, refactorPattern)
             .build();
     }
 }
