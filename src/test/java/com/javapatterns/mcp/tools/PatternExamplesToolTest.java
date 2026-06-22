@@ -81,16 +81,13 @@ class PatternExamplesToolTest {
     }
 
     @Test
-    @DisplayName("pattern without example yet returns fileCount=0 (not an error)")
-    void uncoveredPatternReturnsEmpty() throws Exception {
-        CallToolResult r = tool.handle(Map.of("pattern", "observer"));
+    @DisplayName("at the current phase, all 23 patterns are covered so an uncovered probe is not meaningful — keep a sanity check on a covered one")
+    void singletonAlwaysHasOneFile() throws Exception {
+        CallToolResult r = tool.handle(Map.of("pattern", "singleton"));
         assertThat(r.isError()).isFalse();
         Map<String, Object> payload = parse(((TextContent) r.content().get(0)).text());
-        assertThat(payload.get("pattern")).isEqualTo("Observer");
-        assertThat(payload.get("fileCount")).isEqualTo(0);
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> files = (List<Map<String, Object>>) payload.get("files");
-        assertThat(files).isEmpty();
+        assertThat(payload.get("pattern")).isEqualTo("Singleton");
+        assertThat(payload.get("fileCount")).isEqualTo(1);
     }
 
     @Test

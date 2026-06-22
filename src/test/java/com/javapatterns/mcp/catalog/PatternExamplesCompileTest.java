@@ -53,6 +53,28 @@ class PatternExamplesCompileTest {
     }
 
     @Test
+    @DisplayName("all 11 Behavioral patterns have examples")
+    void behavioralPatternsAreCovered() {
+        assertThat(loader.forPattern(Pattern.CHAIN_OF_RESPONSIBILITY)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.COMMAND)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.INTERPRETER)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.ITERATOR)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.MEDIATOR)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.MEMENTO)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.OBSERVER)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.STATE)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.STRATEGY)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.TEMPLATE_METHOD)).isNotEmpty();
+        assertThat(loader.forPattern(Pattern.VISITOR)).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("all 23 GoF patterns have at least one example")
+    void allPatternsAreCovered() {
+        assertThat(loader.coveredPatterns()).hasSize(23);
+    }
+
+    @Test
     @DisplayName("every example file declares the package the index claims it does")
     void packageDeclarationsMatchIndex() {
         for (Pattern p : loader.coveredPatterns()) {

@@ -7,7 +7,7 @@
           "fileName": "Singleton.java",
           "packageName": "com.javapatterns.examples.singleton",
           "path": "examples/singleton/Singleton.java",
-          "note": "Thread-safe Bill-Pugh holder idiom — lazy, lock-free, JLS-guaranteed single initialization"
+          "note": "Thread-safe Bill-Pugh holder idiom \u2014 lazy, lock-free, JLS-guaranteed single initialization"
         }
       ]
     },
@@ -111,11 +111,10 @@
           "fileName": "Circle.java",
           "packageName": "com.javapatterns.examples.prototype",
           "path": "examples/prototype/Circle.java",
-          "note": "Concrete Shape — chains copy-constructor to super, adds own state (radius)"
+          "note": "Concrete Shape \u2014 chains copy-constructor to super, adds own state (radius)"
         }
       ]
     },
-
     {
       "pattern": "ADAPTER",
       "files": [
@@ -135,7 +134,7 @@
           "fileName": "SquarePegAdapter.java",
           "packageName": "com.javapatterns.examples.adapter",
           "path": "examples/adapter/SquarePegAdapter.java",
-          "note": "Adapter exposing a RoundPeg surface over a wrapped SquarePeg (radius = side*√2/2)"
+          "note": "Adapter exposing a RoundPeg surface over a wrapped SquarePeg (radius = side*\u221a2/2)"
         },
         {
           "fileName": "RoundHole.java",
@@ -152,13 +151,13 @@
           "fileName": "Shape.java",
           "packageName": "com.javapatterns.examples.bridge",
           "path": "examples/bridge/Shape.java",
-          "note": "Abstraction — holds an implementor via composition, not inheritance"
+          "note": "Abstraction \u2014 holds an implementor via composition, not inheritance"
         },
         {
           "fileName": "Renderer.java",
           "packageName": "com.javapatterns.examples.bridge",
           "path": "examples/bridge/Renderer.java",
-          "note": "Implementor interface — low-level drawing API"
+          "note": "Implementor interface \u2014 low-level drawing API"
         },
         {
           "fileName": "Circle.java",
@@ -176,13 +175,13 @@
           "fileName": "VectorRenderer.java",
           "packageName": "com.javapatterns.examples.bridge",
           "path": "examples/bridge/VectorRenderer.java",
-          "note": "Concrete implementor — SVG output"
+          "note": "Concrete implementor \u2014 SVG output"
         },
         {
           "fileName": "RasterRenderer.java",
           "packageName": "com.javapatterns.examples.bridge",
           "path": "examples/bridge/RasterRenderer.java",
-          "note": "Concrete implementor — raster output"
+          "note": "Concrete implementor \u2014 raster output"
         }
       ]
     },
@@ -222,25 +221,25 @@
           "fileName": "EmailNotifier.java",
           "packageName": "com.javapatterns.examples.decorator",
           "path": "examples/decorator/EmailNotifier.java",
-          "note": "Concrete component — base behaviour"
+          "note": "Concrete component \u2014 base behaviour"
         },
         {
           "fileName": "NotifierDecorator.java",
           "packageName": "com.javapatterns.examples.decorator",
           "path": "examples/decorator/NotifierDecorator.java",
-          "note": "Base decorator — holds the wrapped Notifier and forwards by default"
+          "note": "Base decorator \u2014 holds the wrapped Notifier and forwards by default"
         },
         {
           "fileName": "SmsDecorator.java",
           "packageName": "com.javapatterns.examples.decorator",
           "path": "examples/decorator/SmsDecorator.java",
-          "note": "Concrete decorator — adds SMS channel on top of any Notifier"
+          "note": "Concrete decorator \u2014 adds SMS channel on top of any Notifier"
         },
         {
           "fileName": "SlackDecorator.java",
           "packageName": "com.javapatterns.examples.decorator",
           "path": "examples/decorator/SlackDecorator.java",
-          "note": "Concrete decorator — adds Slack channel; decorators stack"
+          "note": "Concrete decorator \u2014 adds Slack channel; decorators stack"
         }
       ]
     },
@@ -262,13 +261,13 @@
           "fileName": "TreeType.java",
           "packageName": "com.javapatterns.examples.flyweight",
           "path": "examples/flyweight/TreeType.java",
-          "note": "Flyweight — immutable shared intrinsic state (name, texture, color)"
+          "note": "Flyweight \u2014 immutable shared intrinsic state (name, texture, color)"
         },
         {
           "fileName": "TreeTypeFactory.java",
           "packageName": "com.javapatterns.examples.flyweight",
           "path": "examples/flyweight/TreeTypeFactory.java",
-          "note": "Flyweight factory — returns a shared TreeType per (name,texture,color) key"
+          "note": "Flyweight factory \u2014 returns a shared TreeType per (name,texture,color) key"
         },
         {
           "fileName": "Tree.java",
@@ -285,19 +284,278 @@
           "fileName": "Service.java",
           "packageName": "com.javapatterns.examples.proxy",
           "path": "examples/proxy/Service.java",
-          "note": "Shared interface — both real and proxy implement it"
+          "note": "Shared interface \u2014 both real and proxy implement it"
         },
         {
           "fileName": "ExpensiveService.java",
           "packageName": "com.javapatterns.examples.proxy",
           "path": "examples/proxy/ExpensiveService.java",
-          "note": "The real subject — pretend each call hits a network or a DB"
+          "note": "The real subject \u2014 pretend each call hits a network or a DB"
         },
         {
           "fileName": "CachingServiceProxy.java",
           "packageName": "com.javapatterns.examples.proxy",
           "path": "examples/proxy/CachingServiceProxy.java",
-          "note": "Caching proxy — same Service surface, but hits the real one only on cache miss"
+          "note": "Caching proxy \u2014 same Service surface, but hits the real one only on cache miss"
+        }
+      ]
+    },
+    {
+      "pattern": "CHAIN_OF_RESPONSIBILITY",
+      "files": [
+        {
+          "fileName": "AuthHandler.java",
+          "packageName": "com.javapatterns.examples.chain_of_responsibility",
+          "path": "examples/chain-of-responsibility/AuthHandler.java",
+          "note": "Concrete handler \u2014 accepts AUTH:* requests"
+        },
+        {
+          "fileName": "Handler.java",
+          "packageName": "com.javapatterns.examples.chain_of_responsibility",
+          "path": "examples/chain-of-responsibility/Handler.java",
+          "note": "Abstract base \u2014 fluent setNext() and default forward()"
+        },
+        {
+          "fileName": "LoggingHandler.java",
+          "packageName": "com.javapatterns.examples.chain_of_responsibility",
+          "path": "examples/chain-of-responsibility/LoggingHandler.java",
+          "note": "Concrete handler \u2014 accepts LOG:* requests"
+        }
+      ]
+    },
+    {
+      "pattern": "COMMAND",
+      "files": [
+        {
+          "fileName": "AppendCommand.java",
+          "packageName": "com.javapatterns.examples.command",
+          "path": "examples/command/AppendCommand.java",
+          "note": "Concrete command wrapping an append + its undo"
+        },
+        {
+          "fileName": "Command.java",
+          "packageName": "com.javapatterns.examples.command",
+          "path": "examples/command/Command.java",
+          "note": "Command interface \u2014 supports execute() and undo()"
+        },
+        {
+          "fileName": "TextEditor.java",
+          "packageName": "com.javapatterns.examples.command",
+          "path": "examples/command/TextEditor.java",
+          "note": "Receiver \u2014 knows how to perform the work"
+        }
+      ]
+    },
+    {
+      "pattern": "INTERPRETER",
+      "files": [
+        {
+          "fileName": "Context.java",
+          "packageName": "com.javapatterns.examples.interpreter",
+          "path": "examples/interpreter/Context.java",
+          "note": "Shared evaluation context with variable bindings"
+        },
+        {
+          "fileName": "Expression.java",
+          "packageName": "com.javapatterns.examples.interpreter",
+          "path": "examples/interpreter/Expression.java",
+          "note": "AST node interface \u2014 evaluate(Context)"
+        },
+        {
+          "fileName": "Expressions.java",
+          "packageName": "com.javapatterns.examples.interpreter",
+          "path": "examples/interpreter/Expressions.java",
+          "note": "Terminal Variable + non-terminal And/Or, bundled for brevity"
+        }
+      ]
+    },
+    {
+      "pattern": "ITERATOR",
+      "files": [
+        {
+          "fileName": "Aggregate.java",
+          "packageName": "com.javapatterns.examples.iterator",
+          "path": "examples/iterator/Aggregate.java",
+          "note": "Aggregate interface \u2014 yields a CustomIterator"
+        },
+        {
+          "fileName": "CustomIterator.java",
+          "packageName": "com.javapatterns.examples.iterator",
+          "path": "examples/iterator/CustomIterator.java",
+          "note": "Iterator interface \u2014 hasNext() and next()"
+        },
+        {
+          "fileName": "NameRoster.java",
+          "packageName": "com.javapatterns.examples.iterator",
+          "path": "examples/iterator/NameRoster.java",
+          "note": "Concrete aggregate with an inner-class iterator"
+        }
+      ]
+    },
+    {
+      "pattern": "MEDIATOR",
+      "files": [
+        {
+          "fileName": "ChatMediator.java",
+          "packageName": "com.javapatterns.examples.mediator",
+          "path": "examples/mediator/ChatMediator.java",
+          "note": "Mediator interface \u2014 send() and register()"
+        },
+        {
+          "fileName": "ChatRoom.java",
+          "packageName": "com.javapatterns.examples.mediator",
+          "path": "examples/mediator/ChatRoom.java",
+          "note": "Concrete mediator \u2014 fans messages out and logs them"
+        },
+        {
+          "fileName": "Colleague.java",
+          "packageName": "com.javapatterns.examples.mediator",
+          "path": "examples/mediator/Colleague.java",
+          "note": "Colleague base \u2014 knows only the mediator"
+        }
+      ]
+    },
+    {
+      "pattern": "MEMENTO",
+      "files": [
+        {
+          "fileName": "DocumentMemento.java",
+          "packageName": "com.javapatterns.examples.memento",
+          "path": "examples/memento/DocumentMemento.java",
+          "note": "Opaque memento \u2014 package-private field, only originator reads"
+        },
+        {
+          "fileName": "History.java",
+          "packageName": "com.javapatterns.examples.memento",
+          "path": "examples/memento/History.java",
+          "note": "Caretaker \u2014 stores mementos without inspecting them (undo stack)"
+        },
+        {
+          "fileName": "TextDocument.java",
+          "packageName": "com.javapatterns.examples.memento",
+          "path": "examples/memento/TextDocument.java",
+          "note": "Originator \u2014 save() and restore() snapshots of its private state"
+        }
+      ]
+    },
+    {
+      "pattern": "OBSERVER",
+      "files": [
+        {
+          "fileName": "CountingObserver.java",
+          "packageName": "com.javapatterns.examples.observer",
+          "path": "examples/observer/CountingObserver.java",
+          "note": "Concrete observer that records every event it sees"
+        },
+        {
+          "fileName": "EventBus.java",
+          "packageName": "com.javapatterns.examples.observer",
+          "path": "examples/observer/EventBus.java",
+          "note": "Subject \u2014 subscribe/unsubscribe/publish, iterates over a snapshot"
+        },
+        {
+          "fileName": "Observer.java",
+          "packageName": "com.javapatterns.examples.observer",
+          "path": "examples/observer/Observer.java",
+          "note": "Observer interface \u2014 onEvent(T)"
+        }
+      ]
+    },
+    {
+      "pattern": "STATE",
+      "files": [
+        {
+          "fileName": "GreenState.java",
+          "packageName": "com.javapatterns.examples.state",
+          "path": "examples/state/GreenState.java",
+          "note": "Concrete state \u2014 next() returns Yellow"
+        },
+        {
+          "fileName": "LightState.java",
+          "packageName": "com.javapatterns.examples.state",
+          "path": "examples/state/LightState.java",
+          "note": "Sealed state interface"
+        },
+        {
+          "fileName": "RedState.java",
+          "packageName": "com.javapatterns.examples.state",
+          "path": "examples/state/RedState.java",
+          "note": "Concrete state \u2014 next() returns Green"
+        },
+        {
+          "fileName": "TrafficLight.java",
+          "packageName": "com.javapatterns.examples.state",
+          "path": "examples/state/TrafficLight.java",
+          "note": "Context \u2014 delegates tick() behaviour to the current LightState"
+        },
+        {
+          "fileName": "YellowState.java",
+          "packageName": "com.javapatterns.examples.state",
+          "path": "examples/state/YellowState.java",
+          "note": "Concrete state \u2014 next() returns Red"
+        }
+      ]
+    },
+    {
+      "pattern": "STRATEGY",
+      "files": [
+        {
+          "fileName": "QuickSortStrategy.java",
+          "packageName": "com.javapatterns.examples.strategy",
+          "path": "examples/strategy/QuickSortStrategy.java",
+          "note": "Concrete strategy \u2014 natural order (delegates to JDK sort)"
+        },
+        {
+          "fileName": "ReverseSortStrategy.java",
+          "packageName": "com.javapatterns.examples.strategy",
+          "path": "examples/strategy/ReverseSortStrategy.java",
+          "note": "Concrete strategy \u2014 reverse order"
+        },
+        {
+          "fileName": "SortStrategy.java",
+          "packageName": "com.javapatterns.examples.strategy",
+          "path": "examples/strategy/SortStrategy.java",
+          "note": "Strategy interface \u2014 pluggable sort algorithm"
+        }
+      ]
+    },
+    {
+      "pattern": "TEMPLATE_METHOD",
+      "files": [
+        {
+          "fileName": "DataPipeline.java",
+          "packageName": "com.javapatterns.examples.template_method",
+          "path": "examples/template-method/DataPipeline.java",
+          "note": "Abstract template \u2014 final process() locks the algorithm structure"
+        },
+        {
+          "fileName": "UppercasePipeline.java",
+          "packageName": "com.javapatterns.examples.template_method",
+          "path": "examples/template-method/UppercasePipeline.java",
+          "note": "Concrete subclass \u2014 fills in only parse() and transform()"
+        }
+      ]
+    },
+    {
+      "pattern": "VISITOR",
+      "files": [
+        {
+          "fileName": "Shape.java",
+          "packageName": "com.javapatterns.examples.visitor",
+          "path": "examples/visitor/Shape.java",
+          "note": "Element interface \u2014 accepts a ShapeVisitor (double dispatch)"
+        },
+        {
+          "fileName": "ShapeVisitor.java",
+          "packageName": "com.javapatterns.examples.visitor",
+          "path": "examples/visitor/ShapeVisitor.java",
+          "note": "Visitor interface \u2014 one visit method per concrete shape"
+        },
+        {
+          "fileName": "Shapes.java",
+          "packageName": "com.javapatterns.examples.visitor",
+          "path": "examples/visitor/Shapes.java",
+          "note": "Concrete elements (Circle, Square) + sample visitor (SvgRenderer)"
         }
       ]
     }
