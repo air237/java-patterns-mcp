@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    IMPORTANT: stdio MCP transport uses stdout for JSON-RPC frames.
+    All logs MUST go to stderr, otherwise the client will see them as
+    corrupt protocol messages and disconnect.
+-->
+<configuration>
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDERR"/>
+    </root>
+
+    <logger name="io.modelcontextprotocol" level="INFO"/>
+    <logger name="com.javapatterns.mcp" level="DEBUG"/>
+</configuration>
