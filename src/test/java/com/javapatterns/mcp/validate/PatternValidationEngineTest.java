@@ -14,10 +14,11 @@ class PatternValidationEngineTest {
     private final PatternValidationEngine engine = PatternValidationEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports the 3 wired validators")
+    @DisplayName("engine reports the 5 wired validators")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
-            Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER);
+            Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER,
+            Pattern.STRATEGY, Pattern.FACTORY_METHOD);
     }
 
     // ─── Singleton ─────────────────────────────────────────────────
@@ -198,6 +199,122 @@ class PatternValidationEngineTest {
             assertThat(i.severity()).isEqualTo(Severity.WARNING);
             assertThat(i.issue()).containsIgnoringCase("ConcurrentModificationException");
             assertThat(i.suggestion()).containsIgnoringCase("snapshot");
+        });
+    }
+
+    // ─── Strategy ──────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("Strategy contract that is a concrete class is ERROR")
+    void concreteStrategyContractIsError() {
+        String source = """
+            public class SortStrategy {
+                public java.util.List<Integer> sort(java.util.List<Integer> in) { return in; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.STRATEGY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("concrete class");
+        });
+    }
+
+    @Test
+    @DisplayName("Strategy with only 1 implementation is WARNING")
+    void singleImplementationStrategyIsWarning() {
+        String source = """
+            interface SortStrategy { java.util.List<Integer> sort(java.util.List<Integer> in); }
+            final class AscSort implements SortStrategy {
+                public java.util.List<Integer> sort(java.util.List<Integer> in) { return in; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.STRATEGY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("1 implementation");
+        });
+    }
+
+    @Test
+    @DisplayName("Strategy with multiple abstract methods is WARNING")
+    void multiMethodStrategyIsWarning() {
+        String source = """
+            interface SortStrategy {
+                java.util.List<Integer> sort(java.util.List<Integer> in);
+                java.util.List<Integer> partialSort(java.util.List<Integer> in, int n);
+            }
+            final class AscSort implements SortStrategy {
+                public java.util.List<Integer> sort(java.util.List<Integer> in) { return in; }
+                public java.util.List<Integer> partialSort(java.util.List<Integer> in, int n) { return in; }
+            }
+            final class DescSort implements SortStrategy {
+                public java.util.List<Integer> sort(java.util.List<Integer> in) { return in; }
+                public java.util.List<Integer> partialSort(java.util.List<Integer> in, int n) { return in; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.STRATEGY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("abstract methods");
+        });
+    }
+
+    // ─── Factory Method ────────────────────────────────────────────
+
+    @Test
+    @DisplayName("Factory Method on a non-abstract Creator with public ctor is ERROR")
+    void publicCreatorCtorIsError() {
+        String source = """
+            interface Button { void render(); }
+            final class WindowsButton implements Button { public void render() {} }
+            public class Dialog {
+                public Dialog() {}
+                public Button createButton() { return new WindowsButton(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.FACTORY_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("public constructor");
+        });
+    }
+
+    @Test
+    @DisplayName("Factory Method returning a concrete product type is WARNING")
+    void concreteReturnTypeIsWarning() {
+        String source = """
+            class WindowsButton { public void render() {} }
+            public abstract class Dialog {
+                protected Dialog() {}
+                public WindowsButton createButton() { return new WindowsButton(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.FACTORY_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("concrete type");
+        });
+    }
+
+    @Test
+    @DisplayName("Factory Method that inline-news multiple products (simple-factory smell) is WARNING")
+    void inlineSwitchIsWarning() {
+        String source = """
+            interface Button { void render(); }
+            final class WindowsButton implements Button { public void render() {} }
+            final class LinuxButton implements Button { public void render() {} }
+            public abstract class Dialog {
+                protected Dialog() {}
+                public Button createButton(String os) {
+                    if (os.equals("win")) return new WindowsButton();
+                    return new LinuxButton();
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.FACTORY_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("simple factory");
         });
     }
 

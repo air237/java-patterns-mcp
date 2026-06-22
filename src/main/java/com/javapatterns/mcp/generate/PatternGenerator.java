@@ -40,7 +40,10 @@ public final class PatternGenerator {
         Pattern.FACTORY_METHOD,
         Pattern.BUILDER,
         Pattern.STRATEGY,
-        Pattern.OBSERVER
+        Pattern.OBSERVER,
+        Pattern.DECORATOR,
+        Pattern.STATE,
+        Pattern.COMMAND
     );
 
     /** Singleton instance — templates are loaded lazily on first use. */

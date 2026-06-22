@@ -36,7 +36,9 @@ public final class PatternValidationEngine {
         this.validators = List.of(
             new SingletonValidator(),
             new BuilderValidator(),
-            new ObserverValidator()
+            new ObserverValidator(),
+            new StrategyValidator(),
+            new FactoryMethodValidator()
         );
     }
 

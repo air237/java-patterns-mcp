@@ -29,13 +29,14 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 | 1 | MCP bootstrap + stdio transport + `ping` tool | ✅ done |
 | 2 | Pattern catalog model (23 GoF + metadata) | ✅ done |
 | 3 | `list_patterns` tool | ✅ done |
-| 4 | `pattern_examples` tool (canonical, compilable) | ✅ all 23 patterns |
-| 5 | `generate_pattern` tool (JTE templates) | 🟡 5 patterns wired (Singleton, Builder, Strategy, Observer, Factory Method) |
-| 6-8 | All 23 GoF patterns implemented + tested | ⏳ planned |
-| 9 | `detect_pattern` (JavaParser AST visitors) | 🟡 6 detectors (Singleton, Builder, Factory Method, Strategy, Observer, Composite) |
-| 10 | `validate_pattern` (pattern-specific rules) | 🟡 3 validators (Singleton, Builder, Observer) |
-| 11 | `refactor_to_pattern` (anti-pattern → pattern) | 🟡 5 refactorings (Singleton×3, Builder, Observer) |
-| 12-13 | Packaging, OpenCode config example, CI | ⏳ planned |
+| 4–6 | `pattern_examples` tool — canonical, compile-tested examples for all 23 patterns | ✅ all 23 patterns |
+| 7  | `generate_pattern` tool (5 templates: Singleton, Builder, Strategy, Observer, Factory Method) | ✅ done |
+| 8  | `detect_pattern` (6 detectors: Singleton, Builder, Factory Method, Strategy, Observer, Composite) | ✅ done |
+| 9  | `validate_pattern` (3 validators: Singleton, Builder, Observer) | ✅ done |
+| 10 | `refactor_to_pattern` (5 refactorings: Singleton×3, Builder, Observer) | ✅ done |
+| 11 | Broadened coverage: +6 detectors (Adapter, Decorator, Proxy, Template Method, State, Command), +3 generators (Decorator, State, Command), +2 validators (Strategy, Factory Method) | ✅ done |
+| 12 | GitHub Actions CI | ⏳ planned |
+| 13 | Maven Central publication | ⏳ planned |
 
 ## Tools (target API)
 

@@ -1,0 +1,8 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",            "template": "Component.java.template" },
+    { "fileName": "Simple${TYPE_NAME}.java",      "template": "SimpleComponent.java.template" },
+    { "fileName": "${TYPE_NAME}Decorator.java",   "template": "Decorator.java.template" },
+    { "fileName": "Logging${TYPE_NAME}Decorator.java", "template": "LoggingDecorator.java.template" }
+  ]
+}

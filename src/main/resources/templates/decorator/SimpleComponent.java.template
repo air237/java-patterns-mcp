@@ -1,0 +1,10 @@
+${PACKAGE_DECL}
+
+/** Plain, undecorated implementation of {@link ${TYPE_NAME}}. */
+public final class Simple${TYPE_NAME} implements ${TYPE_NAME} {
+
+    @Override
+    public String describe() {
+        return "simple-${TYPE_NAME}";
+    }
+}

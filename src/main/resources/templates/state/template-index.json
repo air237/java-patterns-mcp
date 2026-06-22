@@ -1,0 +1,8 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}State.java",        "template": "State.java.template" },
+    { "fileName": "On${TYPE_NAME}State.java",      "template": "OnState.java.template" },
+    { "fileName": "Off${TYPE_NAME}State.java",     "template": "OffState.java.template" },
+    { "fileName": "${TYPE_NAME}Context.java",      "template": "Context.java.template" }
+  ]
+}

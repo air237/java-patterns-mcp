@@ -1,0 +1,15 @@
+${PACKAGE_DECL}
+
+/**
+ * State contract for the {@code ${TYPE_NAME}Context} machine.
+ *
+ * <p>Each concrete state encapsulates the behaviour of the context
+ * while it is in that state and returns the next state to transition
+ * to when {@link #toggle()} is invoked.</p>
+ */
+public sealed interface ${TYPE_NAME}State
+    permits On${TYPE_NAME}State, Off${TYPE_NAME}State {
+
+    String label();
+    ${TYPE_NAME}State toggle();
+}

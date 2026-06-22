@@ -1,0 +1,12 @@
+${PACKAGE_DECL}
+
+/**
+ * Component contract for the {@code ${TYPE_NAME}} hierarchy.
+ *
+ * <p>Both concrete implementations and decorators implement this
+ * interface — decorators forward calls to a wrapped {@code ${TYPE_NAME}}
+ * and add behaviour around the forwarding.</p>
+ */
+public interface ${TYPE_NAME} {
+    String describe();
+}

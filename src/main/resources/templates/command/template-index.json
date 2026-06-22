@@ -1,0 +1,9 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Command.java",       "template": "Command.java.template" },
+    { "fileName": "${TYPE_NAME}Receiver.java",      "template": "Receiver.java.template" },
+    { "fileName": "On${TYPE_NAME}Command.java",     "template": "OnCommand.java.template" },
+    { "fileName": "Off${TYPE_NAME}Command.java",    "template": "OffCommand.java.template" },
+    { "fileName": "${TYPE_NAME}Invoker.java",       "template": "Invoker.java.template" }
+  ]
+}

@@ -1,0 +1,20 @@
+${PACKAGE_DECL}
+
+/**
+ * Concrete decorator that adds a {@code [logged]} marker around the
+ * delegate's {@link ${TYPE_NAME}#describe()} output.
+ *
+ * <p>Useful as a template for cross-cutting concerns (logging,
+ * metrics, tracing, caching).</p>
+ */
+public final class Logging${TYPE_NAME}Decorator extends ${TYPE_NAME}Decorator {
+
+    public Logging${TYPE_NAME}Decorator(${TYPE_NAME} delegate) {
+        super(delegate);
+    }
+
+    @Override
+    public String describe() {
+        return "[logged] " + super.describe();
+    }
+}

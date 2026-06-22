@@ -41,7 +41,13 @@ public final class PatternDetectionEngine {
             new FactoryMethodDetector(),
             new StrategyDetector(),
             new ObserverDetector(),
-            new CompositeDetector()
+            new CompositeDetector(),
+            new AdapterDetector(),
+            new DecoratorDetector(),
+            new ProxyDetector(),
+            new TemplateMethodDetector(),
+            new StateDetector(),
+            new CommandDetector()
         );
     }
 

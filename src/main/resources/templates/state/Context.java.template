@@ -1,0 +1,23 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Context that owns a mutable {@link ${TYPE_NAME}State} reference.
+ *
+ * <p>Clients call {@link #toggle()} — the state itself decides which
+ * state comes next. The context is therefore behaviour-free; all
+ * variability lives in the state classes.</p>
+ */
+public final class ${TYPE_NAME}Context {
+
+    private ${TYPE_NAME}State state;
+
+    public ${TYPE_NAME}Context(${TYPE_NAME}State initial) {
+        this.state = Objects.requireNonNull(initial, "initial");
+    }
+
+    public String label() { return state.label(); }
+
+    public void toggle() { this.state = state.toggle(); }
+}

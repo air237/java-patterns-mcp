@@ -1,0 +1,18 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/** Command that asks the receiver to turn off. */
+public final class Off${TYPE_NAME}Command implements ${TYPE_NAME}Command {
+
+    private final ${TYPE_NAME}Receiver receiver;
+
+    public Off${TYPE_NAME}Command(${TYPE_NAME}Receiver receiver) {
+        this.receiver = Objects.requireNonNull(receiver, "receiver");
+    }
+
+    @Override
+    public void execute() {
+        receiver.turnOff();
+    }
+}

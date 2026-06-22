@@ -1,0 +1,16 @@
+${PACKAGE_DECL}
+
+/**
+ * Receiver — the object whose state the commands actually mutate.
+ *
+ * <p>Knows nothing about commands; concrete {@code ${TYPE_NAME}Command}
+ * implementations hold a reference to this and forward requests here.</p>
+ */
+public final class ${TYPE_NAME}Receiver {
+
+    private boolean active;
+
+    public void turnOn()  { this.active = true; }
+    public void turnOff() { this.active = false; }
+    public boolean isActive() { return active; }
+}

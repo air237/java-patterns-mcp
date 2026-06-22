@@ -1,0 +1,23 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Abstract decorator base for {@link ${TYPE_NAME}}.
+ *
+ * <p>Holds the wrapped delegate and forwards every call by default —
+ * concrete subclasses override only what they need to enhance.</p>
+ */
+public abstract class ${TYPE_NAME}Decorator implements ${TYPE_NAME} {
+
+    protected final ${TYPE_NAME} delegate;
+
+    protected ${TYPE_NAME}Decorator(${TYPE_NAME} delegate) {
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+    }
+
+    @Override
+    public String describe() {
+        return delegate.describe();
+    }
+}

@@ -28,7 +28,13 @@ class PatternDetectionEngineTest {
             Pattern.FACTORY_METHOD,
             Pattern.STRATEGY,
             Pattern.OBSERVER,
-            Pattern.COMPOSITE
+            Pattern.COMPOSITE,
+            Pattern.ADAPTER,
+            Pattern.DECORATOR,
+            Pattern.PROXY,
+            Pattern.TEMPLATE_METHOD,
+            Pattern.STATE,
+            Pattern.COMMAND
         );
     }
 
@@ -159,6 +165,151 @@ class PatternDetectionEngineTest {
             }
             """;
         assertThat(engine.detect(source)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Adapter is detected when a class implements a target + wraps an adaptee")
+    void detectsAdapterSnippet() {
+        String source = """
+            package demo;
+            interface MediaPlayer { void play(String file); }
+            class AdvancedPlayer { void playMp4(String f) {} }
+            final class MediaAdapter implements MediaPlayer {
+                private final AdvancedPlayer adaptee = new AdvancedPlayer();
+                public void play(String file) { adaptee.playMp4(file); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.ADAPTER)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("MediaAdapter");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+        assertThat(hit.evidence()).anySatisfy(e ->
+            assertThat(e).contains("AdvancedPlayer"));
+    }
+
+    @Test
+    @DisplayName("Decorator is detected when wrapper holds a field of the same interface")
+    void detectsDecoratorSnippet() {
+        String source = """
+            package demo;
+            interface Coffee { double cost(); }
+            final class SimpleCoffee implements Coffee {
+                public double cost() { return 2.0; }
+            }
+            class MilkDecorator implements Coffee {
+                private final Coffee inner;
+                MilkDecorator(Coffee inner) { this.inner = inner; }
+                public double cost() { return inner.cost() + 0.5; }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.DECORATOR)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("MilkDecorator");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Proxy is detected when a hinted class name wraps the same interface")
+    void detectsProxySnippet() {
+        String source = """
+            package demo;
+            interface Image { void display(); }
+            final class RealImage implements Image {
+                public void display() {}
+            }
+            final class CachingImageProxy implements Image {
+                private final Image real;
+                CachingImageProxy(Image real) { this.real = real; }
+                public void display() { real.display(); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.PROXY)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("CachingImageProxy");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Template Method is detected on an abstract class whose final method calls abstract siblings")
+    void detectsTemplateMethodSnippet() {
+        String source = """
+            package demo;
+            abstract class Game {
+                public final void play() {
+                    initialize();
+                    startPlay();
+                    endPlay();
+                }
+                protected abstract void initialize();
+                protected abstract void startPlay();
+                protected abstract void endPlay();
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.TEMPLATE_METHOD)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Game");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("State is detected on a context + sealed-ish state hierarchy + 2 concrete states")
+    void detectsStateSnippet() {
+        String source = """
+            package demo;
+            interface TrafficLightState { TrafficLightState next(); }
+            final class RedState implements TrafficLightState {
+                public TrafficLightState next() { return new GreenState(); }
+            }
+            final class GreenState implements TrafficLightState {
+                public TrafficLightState next() { return new RedState(); }
+            }
+            final class TrafficLight {
+                private TrafficLightState state = new RedState();
+                void tick() { state = state.next(); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.STATE)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("TrafficLightState");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+        assertThat(hit.evidence()).anySatisfy(e ->
+            assertThat(e).contains("TrafficLight"));
+    }
+
+    @Test
+    @DisplayName("Command is detected on an execute() interface with ≥ 2 concrete implementors")
+    void detectsCommandSnippet() {
+        String source = """
+            package demo;
+            interface Command { void execute(); }
+            class Light { void on() {} void off() {} }
+            final class TurnOn implements Command {
+                private final Light light;
+                TurnOn(Light l) { this.light = l; }
+                public void execute() { light.on(); }
+            }
+            final class TurnOff implements Command {
+                private final Light light;
+                TurnOff(Light l) { this.light = l; }
+                public void execute() { light.off(); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.COMMAND)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Command");
+        assertThat(hit.confidence()).isEqualTo(1.0);
     }
 
     @Test

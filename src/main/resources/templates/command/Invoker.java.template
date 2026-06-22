@@ -1,0 +1,32 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Invoker that records a journal of commands and replays them in
+ * insertion order.
+ *
+ * <p>Decouples request producers from request handlers — anyone
+ * holding a {@link ${TYPE_NAME}Command} can enqueue work without
+ * knowing the receiver.</p>
+ */
+public final class ${TYPE_NAME}Invoker {
+
+    private final List<${TYPE_NAME}Command> journal = new ArrayList<>();
+
+    public void submit(${TYPE_NAME}Command command) {
+        journal.add(Objects.requireNonNull(command, "command"));
+    }
+
+    /** Executes every queued command in submission order. */
+    public void flush() {
+        for (${TYPE_NAME}Command c : journal) {
+            c.execute();
+        }
+        journal.clear();
+    }
+
+    public int size() { return journal.size(); }
+}

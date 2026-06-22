@@ -1,0 +1,12 @@
+${PACKAGE_DECL}
+
+/**
+ * Command contract for the {@code ${TYPE_NAME}} subsystem.
+ *
+ * <p>Encapsulates a single request as an object so callers can
+ * parameterise, queue, log, undo, and replay actions uniformly.</p>
+ */
+@FunctionalInterface
+public interface ${TYPE_NAME}Command {
+    void execute();
+}

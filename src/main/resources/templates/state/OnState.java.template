@@ -1,0 +1,11 @@
+${PACKAGE_DECL}
+
+/** "On" state — toggling moves the context to the "Off" state. */
+public final class On${TYPE_NAME}State implements ${TYPE_NAME}State {
+
+    @Override
+    public String label() { return "on"; }
+
+    @Override
+    public ${TYPE_NAME}State toggle() { return new Off${TYPE_NAME}State(); }
+}
