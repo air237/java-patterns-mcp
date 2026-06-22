@@ -26,7 +26,7 @@ This MCP server fills that gap with **deterministic, AST-backed tooling**.
 | Phase | Scope | State |
 |---|---|---|
 | 0 | Project skeleton (pom.xml, structure, licence) | ✅ done |
-| 1 | MCP bootstrap + stdio transport + `ping` tool | ⏳ planned |
+| 1 | MCP bootstrap + stdio transport + `ping` tool | ✅ done |
 | 2 | Pattern catalog model (23 GoF + metadata) | ⏳ planned |
 | 3 | `list_patterns` tool | ⏳ planned |
 | 4 | `pattern_examples` tool (canonical, compilable) | ⏳ planned |
@@ -57,6 +57,24 @@ Requires **JDK 21+** and **Maven 3.9+**.
 mvn clean package
 # produces: target/java-patterns-mcp-0.1.0-SNAPSHOT-all.jar
 ```
+
+## Try it (Phase 1 — only `ping` is wired)
+
+After `mvn package`, smoke-test directly with shell-piped JSON-RPC:
+
+```bash
+java -jar target/java-patterns-mcp-0.1.0-SNAPSHOT-all.jar <<'EOF'
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"smoke","version":"0.0.1"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"ping","arguments":{}}}
+EOF
+```
+
+You should see three JSON-RPC responses on stdout:
+1. Server info + protocol version.
+2. The `ping` tool description.
+3. `"java-patterns-mcp 0.1.0 — alive. Registered tools: [ping]"`.
 
 ## Wire into OpenCode
 

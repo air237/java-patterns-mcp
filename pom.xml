@@ -34,7 +34,8 @@
         <!-- Dependency versions -->
         <mcp.sdk.version>2.0.0</mcp.sdk.version>
         <javaparser.version>3.26.4</javaparser.version>
-        <jackson.version>2.18.2</jackson.version>
+        <!-- MCP SDK 2.0 ships Jackson 3 (tools.jackson.core) by default via mcp-json-jackson3 -->
+        <jackson3.version>3.0.3</jackson3.version>
         <slf4j.version>2.0.16</slf4j.version>
         <logback.version>1.5.18</logback.version>
         <jte.version>3.1.16</jte.version>
@@ -51,15 +52,10 @@
     </properties>
 
     <dependencies>
-        <!-- Official MCP Java SDK (stdio + http transports) -->
+        <!-- Official MCP Java SDK (stdio + http transports, ships Jackson 3 default) -->
         <dependency>
             <groupId>io.modelcontextprotocol.sdk</groupId>
             <artifactId>mcp</artifactId>
-            <version>${mcp.sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.modelcontextprotocol.sdk</groupId>
-            <artifactId>mcp-json-jackson2</artifactId>
             <version>${mcp.sdk.version}</version>
         </dependency>
 
@@ -73,13 +69,6 @@
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
             <version>${javaparser.version}</version>
-        </dependency>
-
-        <!-- Jackson: JSON for tool inputs/outputs and resource files -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <!-- JTE: server-side templating for generate_pattern (compiled, fast) -->

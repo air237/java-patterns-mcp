@@ -1,36 +1,89 @@
 package com.javapatterns.mcp;
 
+import com.javapatterns.mcp.tools.PingTool;
+import io.modelcontextprotocol.server.McpServer;
+import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.server.McpSyncServer;
+import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
+import io.modelcontextprotocol.spec.McpServerTransportProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Entry point for the {@code java-patterns-mcp} server.
  *
- * <p>This is a placeholder for Phase 0 (project skeleton). The actual MCP
- * server bootstrap — stdio transport, tool registration, lifecycle — is
- * implemented in Phase 1.</p>
- *
- * <p>Once Phase 1 lands, this class will:</p>
+ * <p>Bootstraps an MCP synchronous server over stdio:</p>
  * <ol>
- *   <li>Create a {@code StdioServerTransportProvider}.</li>
- *   <li>Build an {@code McpSyncServer} via {@code McpServer.sync(...)}.</li>
- *   <li>Register tools: {@code list_patterns}, {@code pattern_examples},
- *       {@code generate_pattern}, {@code detect_pattern},
- *       {@code validate_pattern}, {@code refactor_to_pattern}.</li>
- *   <li>Block on stdin until the client closes the transport.</li>
+ *   <li>Creates a {@link StdioServerTransportProvider} that reads JSON-RPC
+ *       frames from {@code stdin} and writes responses to {@code stdout}.</li>
+ *   <li>Builds an {@link McpSyncServer} with the default Jackson 3 JSON mapper.</li>
+ *   <li>Registers the initial tool set (currently just {@code ping} — Phase 1
+ *       scope; pattern tools land in Phase 3+).</li>
+ *   <li>Blocks the main thread until the client closes the transport
+ *       (i.e. stdin reaches EOF).</li>
  * </ol>
+ *
+ * <p><b>Important:</b> stdio MCP uses {@code stdout} exclusively for JSON-RPC
+ * frames. All logging is routed to {@code stderr} via {@code logback.xml} —
+ * never write to {@code System.out} from this server.</p>
  */
 public final class JavaPatternsMcpServer {
 
     private static final Logger log = LoggerFactory.getLogger(JavaPatternsMcpServer.class);
 
+    static final String SERVER_NAME = "java-patterns-mcp";
+    static final String SERVER_VERSION = "0.1.0";
+
     private JavaPatternsMcpServer() {
-        // utility / entry-point class
+        // entry-point class
     }
 
-    public static void main(String[] args) {
-        log.info("java-patterns-mcp starting (Phase 0 skeleton — no tools wired yet)");
-        log.warn("MCP server bootstrap arrives in Phase 1.");
-        // Intentionally exit immediately for now; Phase 1 will block on stdio.
+    public static void main(String[] args) throws InterruptedException {
+        log.info("{} {} starting (Phase 1: stdio transport + ping tool)", SERVER_NAME, SERVER_VERSION);
+
+        McpServerTransportProvider transport =
+            new StdioServerTransportProvider(McpJsonMappers.defaultMapper());
+
+        McpSyncServer server = buildServer(transport);
+        log.info("MCP server ready, waiting for client over stdio.");
+
+        // The stdio transport itself runs on background schedulers; the main thread
+        // must stay alive until the JVM shutdown hook (triggered by the client
+        // closing stdin) tears the process down.
+        CountDownLatch shutdown = new CountDownLatch(1);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("Shutdown signal received, closing MCP server gracefully.");
+            try {
+                server.closeGracefully();
+            } catch (Exception e) {
+                log.warn("Error during server graceful shutdown", e);
+            } finally {
+                shutdown.countDown();
+            }
+        }, "mcp-shutdown"));
+        shutdown.await();
+        log.info("Bye.");
+    }
+
+    /**
+     * Builds the {@link McpSyncServer} with the given transport and registers
+     * the Phase 1 tool set. Package-private so the integration test can build a
+     * server backed by an in-memory transport without going through stdio.
+     */
+    static McpSyncServer buildServer(McpServerTransportProvider transport) {
+        // Phase 1: only `ping` is wired. The supplier is wired AFTER the tool
+        // specs are registered so it can report the live registry.
+        List<String> phase1Tools = List.of(PingTool.NAME);
+
+        McpServerFeatures.SyncToolSpecification ping =
+            new PingTool(SERVER_NAME, SERVER_VERSION, () -> phase1Tools).specification();
+
+        return McpServer.sync(transport)
+            .serverInfo(SERVER_NAME, SERVER_VERSION)
+            .tools(ping)
+            .build();
     }
 }
