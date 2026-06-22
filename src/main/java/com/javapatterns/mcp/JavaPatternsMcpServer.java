@@ -2,7 +2,9 @@ package com.javapatterns.mcp;
 
 import com.javapatterns.mcp.catalog.PatternExamplesLoader;
 import com.javapatterns.mcp.catalog.PatternRegistry;
+import com.javapatterns.mcp.detect.PatternDetectionEngine;
 import com.javapatterns.mcp.generate.PatternGenerator;
+import com.javapatterns.mcp.tools.DetectPatternTool;
 import com.javapatterns.mcp.tools.GeneratePatternTool;
 import com.javapatterns.mcp.tools.ListPatternsTool;
 import com.javapatterns.mcp.tools.PatternExamplesTool;
@@ -85,7 +87,8 @@ public final class JavaPatternsMcpServer {
             PingTool.NAME,
             ListPatternsTool.NAME,
             PatternExamplesTool.NAME,
-            GeneratePatternTool.NAME
+            GeneratePatternTool.NAME,
+            DetectPatternTool.NAME
         );
 
         McpServerFeatures.SyncToolSpecification ping =
@@ -100,9 +103,12 @@ public final class JavaPatternsMcpServer {
         McpServerFeatures.SyncToolSpecification generatePattern =
             new GeneratePatternTool(PatternGenerator.getInstance(), jsonMapper).specification();
 
+        McpServerFeatures.SyncToolSpecification detectPattern =
+            new DetectPatternTool(PatternDetectionEngine.getInstance(), jsonMapper).specification();
+
         return McpServer.sync(transport)
             .serverInfo(SERVER_NAME, SERVER_VERSION)
-            .tools(ping, listPatterns, patternExamples, generatePattern)
+            .tools(ping, listPatterns, patternExamples, generatePattern, detectPattern)
             .build();
     }
 }
