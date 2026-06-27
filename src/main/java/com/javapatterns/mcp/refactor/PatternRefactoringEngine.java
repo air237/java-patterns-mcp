@@ -42,6 +42,9 @@ public final class PatternRefactoringEngine {
         register(new TemplateMethodMakeFinal());
         register(new FactoryMethodRestrictCreatorCtor());
         register(new StrategyAddFunctionalInterface());
+        register(new DecoratorMakeWrappedFinal());
+        register(new StateMakeImplementationsFinal());
+        register(new CommandMakeImplementationsFinal());
     }
 
     private void register(PatternRefactoring r) {

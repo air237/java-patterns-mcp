@@ -38,7 +38,16 @@ public enum RefactoringId {
     STRATEGY_ADD_FUNCTIONAL_INTERFACE(
         Pattern.STRATEGY, "strategy-add-functional-interface",
         "Annotate a single-method Strategy interface with @FunctionalInterface "
-        + "so the compiler protects the SAM contract.");
+        + "so the compiler protects the SAM contract."),
+    DECORATOR_MAKE_WRAPPED_FINAL(
+        Pattern.DECORATOR, "decorator-make-wrapped-final",
+        "Mark the wrapped (delegate) field of a Decorator-shaped class as final."),
+    STATE_MAKE_IMPLEMENTATIONS_FINAL(
+        Pattern.STATE, "state-make-implementations-final",
+        "Mark every concrete implementor of a State hierarchy as final."),
+    COMMAND_MAKE_IMPLEMENTATIONS_FINAL(
+        Pattern.COMMAND, "command-make-implementations-final",
+        "Mark every concrete implementor of a Command contract as final.");
 
     private final Pattern pattern;
     private final String slug;

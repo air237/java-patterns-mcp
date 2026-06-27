@@ -40,7 +40,10 @@ public final class PatternValidationEngine {
             new StrategyValidator(),
             new FactoryMethodValidator(),
             new AdapterValidator(),
-            new TemplateMethodValidator()
+            new TemplateMethodValidator(),
+            new DecoratorValidator(),
+            new StateValidator(),
+            new CommandValidator()
         );
     }
 

@@ -10,7 +10,7 @@ class PatternRefactoringEngineTest {
     private final PatternRefactoringEngine engine = PatternRefactoringEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports all 9 wired refactorings")
+    @DisplayName("engine reports all 12 wired refactorings")
     void supported() {
         assertThat(engine.supported()).containsExactlyInAnyOrder(
             RefactoringId.SINGLETON_MAKE_CTOR_PRIVATE,
@@ -21,7 +21,10 @@ class PatternRefactoringEngineTest {
             RefactoringId.ADAPTER_MAKE_ADAPTEE_FINAL,
             RefactoringId.TEMPLATE_METHOD_MAKE_FINAL,
             RefactoringId.FACTORY_METHOD_RESTRICT_CREATOR_CTOR,
-            RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE
+            RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE,
+            RefactoringId.DECORATOR_MAKE_WRAPPED_FINAL,
+            RefactoringId.STATE_MAKE_IMPLEMENTATIONS_FINAL,
+            RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL
         );
     }
 
@@ -467,6 +470,158 @@ class PatternRefactoringEngineTest {
         RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
         assertThat(r.changed()).isTrue();
         assertThat(r.newSource()).contains("@FunctionalInterface");
+    }
+
+    // ─── Decorator: make wrapped final ─────────────────────────────
+
+    @Test
+    @DisplayName("decorator-make-wrapped-final promotes a non-final wrapped field")
+    void decoratorMakeWrappedFinal_promotes() {
+        String src = """
+            interface Notifier { String send(String m); }
+            public class SmsDecorator implements Notifier {
+                private Notifier wrapped;
+                public SmsDecorator(Notifier w) { this.wrapped = w; }
+                public String send(String m) { return wrapped.send(m) + " + sms"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.DECORATOR_MAKE_WRAPPED_FINAL);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("private final Notifier wrapped");
+        assertThat(r.changes()).anyMatch(s -> s.contains("wrapped") && s.contains("final"));
+    }
+
+    @Test
+    @DisplayName("decorator-make-wrapped-final is idempotent on already-final wrapped")
+    void decoratorMakeWrappedFinal_idempotent() {
+        String src = """
+            interface Notifier { String send(String m); }
+            public class SmsDecorator implements Notifier {
+                private final Notifier wrapped;
+                public SmsDecorator(Notifier w) { this.wrapped = w; }
+                public String send(String m) { return wrapped.send(m); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.DECORATOR_MAKE_WRAPPED_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("decorator-make-wrapped-final ignores plain classes (no decorator shape)")
+    void decoratorMakeWrappedFinal_ignoresPlainClasses() {
+        String src = """
+            public class PlainPojo {
+                private String name;
+                public PlainPojo(String n) { this.name = n; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.DECORATOR_MAKE_WRAPPED_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    // ─── State: make implementations final ─────────────────────────
+
+    @Test
+    @DisplayName("state-make-implementations-final marks every concrete state final")
+    void stateMakeImplementationsFinal_promotes() {
+        String src = """
+            public interface LightState { String label(); }
+            public class RedState implements LightState {
+                public String label() { return "red"; }
+            }
+            public class GreenState implements LightState {
+                public String label() { return "green"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STATE_MAKE_IMPLEMENTATIONS_FINAL);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("public final class RedState");
+        assertThat(r.newSource()).contains("public final class GreenState");
+        assertThat(r.changes()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("state-make-implementations-final is idempotent on already-final states")
+    void stateMakeImplementationsFinal_idempotent() {
+        String src = """
+            public interface LightState { String label(); }
+            public final class RedState implements LightState {
+                public String label() { return "red"; }
+            }
+            public final class GreenState implements LightState {
+                public String label() { return "green"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STATE_MAKE_IMPLEMENTATIONS_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("state-make-implementations-final ignores files without a State hierarchy")
+    void stateMakeImplementationsFinal_ignoresNonState() {
+        String src = """
+            public class NotAState {
+                public String value() { return "x"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STATE_MAKE_IMPLEMENTATIONS_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    // ─── Command: make implementations final ───────────────────────
+
+    @Test
+    @DisplayName("command-make-implementations-final marks every concrete command final")
+    void commandMakeImplementationsFinal_promotes() {
+        String src = """
+            public interface Command {
+                String execute();
+            }
+            public class PrintCommand implements Command {
+                private final String t;
+                public PrintCommand(String t) { this.t = t; }
+                public String execute() { return "print:" + t; }
+            }
+            public class LogCommand implements Command {
+                private final String t;
+                public LogCommand(String t) { this.t = t; }
+                public String execute() { return "log:" + t; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("public final class PrintCommand");
+        assertThat(r.newSource()).contains("public final class LogCommand");
+        assertThat(r.changes()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("command-make-implementations-final is idempotent on already-final commands")
+    void commandMakeImplementationsFinal_idempotent() {
+        String src = """
+            public interface Command {
+                String execute();
+            }
+            public final class PrintCommand implements Command {
+                private final String t;
+                public PrintCommand(String t) { this.t = t; }
+                public String execute() { return "print:" + t; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("command-make-implementations-final ignores files without a Command contract")
+    void commandMakeImplementationsFinal_ignoresNonCommand() {
+        String src = """
+            public class Runner {
+                public String go() { return "x"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL);
+        assertThat(r.changed()).isFalse();
     }
 
     // ─── error paths ───────────────────────────────────────────────

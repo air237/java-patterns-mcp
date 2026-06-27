@@ -14,12 +14,13 @@ class PatternValidationEngineTest {
     private final PatternValidationEngine engine = PatternValidationEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports the 7 wired validators")
+    @DisplayName("engine reports the 10 wired validators")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
             Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER,
             Pattern.STRATEGY, Pattern.FACTORY_METHOD, Pattern.ADAPTER,
-            Pattern.TEMPLATE_METHOD);
+            Pattern.TEMPLATE_METHOD, Pattern.DECORATOR, Pattern.STATE,
+            Pattern.COMMAND);
     }
 
     // ─── Singleton ─────────────────────────────────────────────────
@@ -562,5 +563,250 @@ class PatternValidationEngineTest {
         assertThat(issues)
             .as("clean Template Method should validate clean: " + issues)
             .isEmpty();
+    }
+
+    // ─── Decorator ─────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Decorator example yields no ERROR or WARNING")
+    void bundledDecoratorHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.DECORATOR)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.DECORATOR);
+            assertThat(issues)
+                .as("bundled Decorator example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Decorator with a non-final wrapped field is ERROR")
+    void nonFinalWrappedIsError() {
+        String source = """
+            interface Notifier { String send(String m); }
+            public class SmsDecorator implements Notifier {
+                private Notifier wrapped;
+                public SmsDecorator(Notifier w) { this.wrapped = w; }
+                public String send(String m) { return wrapped.send(m) + " + sms"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.DECORATOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Decorator that never forwards to the wrapped is ERROR")
+    void decoratorWithoutForwardingIsError() {
+        String source = """
+            interface Notifier { String send(String m); }
+            public class FakeDecorator implements Notifier {
+                private final Notifier wrapped;
+                public FakeDecorator(Notifier w) { this.wrapped = java.util.Objects.requireNonNull(w); }
+                public String send(String m) { return "hardcoded"; }  // never calls wrapped
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.DECORATOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("does not decorate");
+        });
+    }
+
+    @Test
+    @DisplayName("Decorator constructor without null-check is WARNING")
+    void decoratorWithoutNullCheckIsWarning() {
+        String source = """
+            interface Notifier { String send(String m); }
+            public class SloppyDecorator implements Notifier {
+                private final Notifier wrapped;
+                public SloppyDecorator(Notifier w) { this.wrapped = w; }
+                public String send(String m) { return wrapped.send(m) + " + sms"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.DECORATOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("null-check");
+        });
+    }
+
+    // ─── State ─────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled State example yields no ERROR or WARNING")
+    void bundledStateHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.STATE)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.STATE);
+            assertThat(issues)
+                .as("bundled State example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Concrete State contract is ERROR")
+    void concreteStateContractIsError() {
+        String source = """
+            public class LightState {
+                public String label() { return "?"; }
+            }
+            public class RedState extends LightState {
+                public String label() { return "red"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.STATE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("concrete class");
+        });
+    }
+
+    @Test
+    @DisplayName("Non-private state field on the context is ERROR")
+    void nonPrivateStateFieldIsError() {
+        String source = """
+            public interface LightState { String label(); }
+            public final class RedState implements LightState {
+                public String label() { return "red"; }
+            }
+            public final class GreenState implements LightState {
+                public String label() { return "green"; }
+            }
+            public class TrafficLight {
+                public LightState current = new RedState();  // not private!
+                public void next() { current = new GreenState(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.STATE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("non-private");
+        });
+    }
+
+    @Test
+    @DisplayName("Non-final concrete State is WARNING")
+    void nonFinalConcreteStateIsWarning() {
+        String source = """
+            public interface LightState { String label(); }
+            public class RedState implements LightState {
+                public String label() { return "red"; }
+            }
+            public class GreenState implements LightState {
+                public String label() { return "green"; }
+            }
+            public final class TrafficLight {
+                private LightState current = new RedState();
+                public void next() { current = new GreenState(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.STATE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    // ─── Command ───────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Command example yields no ERROR or WARNING")
+    void bundledCommandHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.COMMAND)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.COMMAND);
+            assertThat(issues)
+                .as("bundled Command example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Concrete Command contract is ERROR")
+    void concreteCommandContractIsError() {
+        String source = """
+            public class Command {
+                public String execute() { return "default"; }
+            }
+            public final class PrintCommand extends Command {
+                public String execute() { return "print"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMMAND);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("concrete class");
+        });
+    }
+
+    @Test
+    @DisplayName("Non-final concrete Command is WARNING")
+    void nonFinalCommandIsWarning() {
+        String source = """
+            public interface Command {
+                String execute();
+                String undo();
+            }
+            public class PrintCommand implements Command {
+                private final String text;
+                public PrintCommand(String t) { this.text = t; }
+                public String execute() { return "print:" + text; }
+                public String undo() { return "unprint:" + text; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMMAND);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Stateless concrete Command (no instance fields) is WARNING")
+    void statelessCommandIsWarning() {
+        String source = """
+            public interface Command {
+                String execute();
+                String undo();
+            }
+            public final class NoopCommand implements Command {
+                public String execute() { return "noop"; }
+                public String undo() { return "noop"; }
+            }
+            public final class OtherCommand implements Command {
+                private final int x = 1;
+                public String execute() { return "x=" + x; }
+                public String undo() { return "undo " + x; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMMAND);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("no instance fields");
+        });
+    }
+
+    @Test
+    @DisplayName("Command contract without undo() is INFO")
+    void commandWithoutUndoIsInfo() {
+        String source = """
+            public interface Command {
+                String execute();
+            }
+            public final class PrintCommand implements Command {
+                private final String text;
+                public PrintCommand(String t) { this.text = t; }
+                public String execute() { return "print:" + text; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMMAND);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.INFO);
+            assertThat(i.issue()).containsIgnoringCase("undo");
+        });
     }
 }
