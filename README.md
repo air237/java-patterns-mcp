@@ -51,6 +51,10 @@ validate_pattern      Verify a given implementation against pattern rules.
 refactor_to_pattern   Transform anti-pattern code into a proper pattern.
 ```
 
+> **Per-pattern tool coverage:** see [`COVERAGE.md`](./COVERAGE.md) for the
+> exact tool × pattern matrix (which of the 23 GoF patterns each tool
+> supports, where the gaps are, and the roadmap for closing them).
+
 ## Build
 
 Requires **JDK 21+** and **Maven 3.9+**.
