@@ -1,0 +1,6 @@
+{
+  "files": [
+    { "fileName": "Abstract${TYPE_NAME}.java", "template": "AbstractType.java.template" },
+    { "fileName": "Simple${TYPE_NAME}.java",   "template": "ConcreteType.java.template" }
+  ]
+}

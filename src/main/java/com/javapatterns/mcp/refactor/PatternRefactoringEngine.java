@@ -39,6 +39,7 @@ public final class PatternRefactoringEngine {
         register(new BuilderMakeFieldsFinal());
         register(new ObserverSnapshotIteration());
         register(new AdapterMakeAdapteeFinal());
+        register(new TemplateMethodMakeFinal());
     }
 
     private void register(PatternRefactoring r) {

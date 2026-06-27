@@ -44,7 +44,8 @@ public final class PatternGenerator {
         Pattern.DECORATOR,
         Pattern.STATE,
         Pattern.COMMAND,
-        Pattern.ADAPTER
+        Pattern.ADAPTER,
+        Pattern.TEMPLATE_METHOD
     );
 
     /** Singleton instance — templates are loaded lazily on first use. */

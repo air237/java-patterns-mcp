@@ -14,11 +14,12 @@ class PatternValidationEngineTest {
     private final PatternValidationEngine engine = PatternValidationEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports the 6 wired validators")
+    @DisplayName("engine reports the 7 wired validators")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
             Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER,
-            Pattern.STRATEGY, Pattern.FACTORY_METHOD, Pattern.ADAPTER);
+            Pattern.STRATEGY, Pattern.FACTORY_METHOD, Pattern.ADAPTER,
+            Pattern.TEMPLATE_METHOD);
     }
 
     // ─── Singleton ─────────────────────────────────────────────────
@@ -452,6 +453,114 @@ class PatternValidationEngineTest {
         List<ValidationIssue> issues = engine.validateOne(source, Pattern.ADAPTER);
         assertThat(issues)
             .as("clean adapter should validate clean: " + issues)
+            .isEmpty();
+    }
+
+    // ─── Template Method ───────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Template Method example yields no ERROR or WARNING")
+    void bundledTemplateMethodHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.TEMPLATE_METHOD)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.TEMPLATE_METHOD);
+            assertThat(issues)
+                .as("bundled Template Method example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Template method without 'final' is ERROR")
+    void nonFinalTemplateMethodIsError() {
+        String source = """
+            public abstract class BadPipeline {
+                public String run(String in) {
+                    return prefix() + in + suffix();
+                }
+                protected abstract String prefix();
+                protected abstract String suffix();
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.TEMPLATE_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Constructor calling an abstract hook is ERROR")
+    void constructorCallsAbstractHookIsError() {
+        String source = """
+            public abstract class HalfInit {
+                private final String greeting;
+                public HalfInit() {
+                    this.greeting = hello();   // calls abstract hook before subclass fields init
+                }
+                public final String run() { return greeting; }
+                protected abstract String hello();
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.TEMPLATE_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue())
+                .containsIgnoringCase("constructor")
+                .containsIgnoringCase("abstract hook");
+        });
+    }
+
+    @Test
+    @DisplayName("Public abstract hook is WARNING")
+    void publicAbstractHookIsWarning() {
+        String source = """
+            public abstract class LeakyHooks {
+                public final String run() { return step(); }
+                public abstract String step();
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.TEMPLATE_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("public");
+        });
+    }
+
+    @Test
+    @DisplayName("Every hook abstract (no defaulted hook) is INFO")
+    void allHooksAbstractIsInfo() {
+        String source = """
+            public abstract class AllAbstract {
+                public final String run() { return parse() + transform(); }
+                protected abstract String parse();
+                protected abstract String transform();
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.TEMPLATE_METHOD);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.INFO);
+            assertThat(i.issue()).containsIgnoringCase("default");
+        });
+    }
+
+    @Test
+    @DisplayName("A well-formed Template Method yields no issues")
+    void cleanTemplateMethodHasNoIssues() {
+        String source = """
+            public abstract class CleanPipeline {
+                public final String run(String in) {
+                    return parse(in) + emit(transform(in));
+                }
+                protected abstract String parse(String in);
+                protected abstract String transform(String in);
+                /** Defaulted hook — subclasses may override. */
+                protected String emit(String s) { return "[" + s + "]"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.TEMPLATE_METHOD);
+        assertThat(issues)
+            .as("clean Template Method should validate clean: " + issues)
             .isEmpty();
     }
 }

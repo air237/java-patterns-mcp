@@ -50,8 +50,8 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | Adapter | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
 | Composite | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
 | Proxy | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
-| Template Method | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
-| **Group A subtotals** | **12/12** | **9/12** | **12/12** | **5/12** | **3 patterns / 6 refactorings** |
+| Template Method | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
+| **Group A subtotals** | **12/12** | **10/12** | **12/12** | **6/12** | **4 patterns / 7 refactorings** |
 
 ### B — `generate` + `detect` target
 
@@ -83,10 +83,10 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | Tool | Implemented | Out of 23 | % | Source of truth |
 |---|---:|---:|---:|---|
 | `pattern_examples` | 23 | 23 | 100% | `src/main/resources/examples/<slug>/` directories |
-| `generate_pattern` | 9 | 23 | 39% | `PatternGenerator.SUPPORTED` |
+| `generate_pattern` | 10 | 23 | 43% | `PatternGenerator.SUPPORTED` |
 | `detect_pattern` | 12 | 23 | 52% | `PatternDetectionEngine` detectors list |
-| `validate_pattern` | 6 | 23 | 26% | `PatternValidationEngine` validators list |
-| `refactor_to_pattern` | 6 refactorings on 4 patterns | – | – | `RefactoringId` enum |
+| `validate_pattern` | 7 | 23 | 30% | `PatternValidationEngine` validators list |
+| `refactor_to_pattern` | 7 refactorings on 5 patterns | – | – | `RefactoringId` enum |
 
 ---
 
@@ -104,6 +104,7 @@ pass to the MCP tool.
 | `builder-make-fields-final` | Builder | Mark every non-final field of the Builder's outer class as `final`. |
 | `observer-snapshot-iteration` | Observer | Wrap the iterated collection of a publish-like method with `List.copyOf(...)`. |
 | `adapter-make-adaptee-final` | Adapter | Mark the adaptee field of an Adapter-shaped class as `final`. |
+| `template-method-make-final` | Template Method | Mark the template method of an abstract class as `final` so subclasses cannot bypass the locked algorithm skeleton. |
 
 ---
 
@@ -111,23 +112,31 @@ pass to the MCP tool.
 
 The 12 Group-A patterns are the priority target. Concrete gaps:
 
-### 4 missing `generate` templates
-Composite · Proxy · Template Method
-(Adapter was completed in commit `<TBD>`.)
+### 3 missing `generate` templates
+Composite · Proxy
+(Adapter completed in commit `ca5441d`; Template Method completed in commit `<TBD>`.)
 
-### 7 missing `validate` validators
-Decorator · State · Command · Composite · Proxy · Template Method
-(Adapter was completed in commit `<TBD>`.)
+### 6 missing `validate` validators
+Decorator · State · Command · Composite · Proxy
+(Adapter completed in commit `ca5441d`; Template Method completed in commit `<TBD>`.)
 
-### 9 patterns without any `refactor` recipe
-Factory Method · Strategy · Decorator · State · Command · Composite · Proxy · Template Method · (only 3 patterns currently have ≥1 refactoring)
+### 8 patterns without any `refactor` recipe
+Factory Method · Strategy · Decorator · State · Command · Composite · Proxy
+(5 patterns now have ≥1 refactoring: Singleton, Builder, Observer, Adapter, Template Method.)
 
-### Per-pattern benchmark (Adapter, June 2026)
+### Per-pattern benchmark
 
-The Adapter rollout produced ~480 LOC and 6 new files
-(3 templates + 1 validator + 1 refactoring + canonical example fix +
-register/test additions). Extrapolated to the remaining 11 Group-A
-patterns: **~5000-5500 LOC of new code, ~15-20 hours of focused work**.
+| Pattern | When | New LOC | New files | New tests | Notes |
+|---|---|---:|---:|---:|---|
+| Adapter | June 2026 | ~480 | 6 | 8 | First full Group-A rollout: object-adapter shape with composition, null-check guard, class-adapter detection. |
+| Template Method | June 2026 | ~410 | 5 | 9 | Educational follow-up: shows what Template Method IS (inheritance + abstract hooks) and what it is NOT (lambda-strategy). Caught the EJ-19 "constructor calls overridable method" anti-pattern. |
+
+Average per pattern so far: ~445 LOC, ~5.5 new files, ~8.5 new tests.
+
+Extrapolated to the remaining 8 Group-A patterns (those that still
+need at least one of generate / validate / refactor): roughly
+3500-4000 LOC of new code, ~12-15 hours of work, to bring Group A
+to full coverage.
 
 ---
 

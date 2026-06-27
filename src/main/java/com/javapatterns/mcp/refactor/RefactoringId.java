@@ -27,7 +27,10 @@ public enum RefactoringId {
         "Wrap the iterated collection inside a publish-like method with List.copyOf(...)."),
     ADAPTER_MAKE_ADAPTEE_FINAL(
         Pattern.ADAPTER, "adapter-make-adaptee-final",
-        "Mark the adaptee field of an Adapter-shaped class as final.");
+        "Mark the adaptee field of an Adapter-shaped class as final."),
+    TEMPLATE_METHOD_MAKE_FINAL(
+        Pattern.TEMPLATE_METHOD, "template-method-make-final",
+        "Mark the template method of a Template-Method-shaped abstract class as final.");
 
     private final Pattern pattern;
     private final String slug;

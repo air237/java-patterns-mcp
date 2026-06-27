@@ -1,0 +1,25 @@
+${PACKAGE_DECL}
+
+import java.util.Locale;
+
+/**
+ * Concrete subclass — implements only the variable steps. It does
+ * NOT (and cannot) override {@link Abstract${TYPE_NAME}#run(String)}
+ * because the template method is {@code final}.
+ *
+ * <p>Subclasses live and die by their hook implementations; if the
+ * template method ever needs to change, every subclass benefits
+ * automatically.</p>
+ */
+public final class Simple${TYPE_NAME} extends Abstract${TYPE_NAME} {
+
+    @Override
+    protected String parse(String input) {
+        return input == null ? "" : input.trim();
+    }
+
+    @Override
+    protected String transform(String parsed) {
+        return parsed.toUpperCase(Locale.ROOT);
+    }
+}

@@ -1,0 +1,40 @@
+${PACKAGE_DECL}
+
+/**
+ * Template Method pattern — declare the algorithm skeleton in the
+ * superclass and let subclasses override specific <i>hooks</i>
+ * without rearranging the overall flow.
+ *
+ * <p>{@link #run(String)} is the <b>template method</b>: it is
+ * {@code final} on purpose so subclasses cannot rewrite the
+ * algorithm structure. The variable steps —
+ * {@link #parse(String)}, {@link #transform(String)} — are
+ * {@code abstract} and force every concrete subclass to provide
+ * them. {@link #emit(String)} is a non-abstract <i>hook</i> with a
+ * sensible default that subclasses may override if they want.</p>
+ *
+ * <p>This is the classic GoF form (inheritance + abstract hooks).
+ * If you find yourself wanting to inject the variable step as a
+ * {@code Function} field instead, you are looking at the Strategy
+ * pattern, not Template Method.</p>
+ */
+public abstract class Abstract${TYPE_NAME} {
+
+    /** The template method — the locked algorithm structure. */
+    public final String run(String input) {
+        String parsed = parse(input);
+        String transformed = transform(parsed);
+        return emit(transformed);
+    }
+
+    /** Hook 1: subclasses must provide this step. */
+    protected abstract String parse(String input);
+
+    /** Hook 2: subclasses must provide this step. */
+    protected abstract String transform(String parsed);
+
+    /** Optional hook with a default — subclasses may override. */
+    protected String emit(String transformed) {
+        return "[" + transformed + "]";
+    }
+}
