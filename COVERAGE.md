@@ -24,14 +24,9 @@ prioritisation buckets:
 
 | Group | Patterns | Strategy |
 |---|---|---|
-| **A — full 4-tool coverage worthwhile** | Singleton, Builder, Factory Method, Observer, Strategy, Decorator, State, Command, Adapter, Composite, Proxy, Template Method | High-frequency patterns with well-known anti-pattern variants. Worth implementing `generate` + `detect` + `validate` + `refactor`. |
-| **B — `generate` + `detect`, no validate / refactor** | Abstract Factory, Bridge, Facade, Visitor, Chain of Responsibility, Mediator | Common enough to recognise and scaffold; "wrong implementation" is loosely defined → `validate` is low-ROI, `refactor` is rarely the target. |
-| **C — `generate` + `detect`, no validate / refactor** | Prototype, Flyweight, Interpreter, Iterator, Memento | Rare in modern Java, or superseded by JDK idioms (`java.util.Iterator`, records, JVM string interning). The canonical example + recognition is the main contribution. |
-
-> Group B and Group C have the same tool set in the end — they
-> differ in the *reason* nothing else is built: Group B is
-> "frequent but anti-patterns are fuzzy", Group C is "rare
-> enough that even detect was originally optional".
+| **A — full 4-tool coverage** | Singleton, Builder, Factory Method, Observer, Strategy, Decorator, State, Command, Adapter, Composite, Proxy, Template Method | High-frequency patterns with well-known anti-pattern variants. Worth implementing `generate` + `detect` + `validate` + `refactor`. |
+| **B — generate + detect + validate, no refactor** | Abstract Factory, Bridge, Facade, Visitor, Chain of Responsibility, Mediator | Common enough to recognise, scaffold AND quality-check. Validators focus on the concrete anti-patterns that recur in practice (e.g. broken Visitor double-dispatch, Bridge field not final, Facade leaking subsystems). `refactor` stays out of scope: the "one obvious fix" is less crisp than for Group A, and the risk of an automated AST rewrite isn't justified. |
+| **C — generate + detect, no validate / refactor** | Prototype, Flyweight, Interpreter, Iterator, Memento | Rare in modern Java, or superseded by JDK idioms (`java.util.Iterator`, records, JVM string interning). The canonical example + recognition is the main contribution. |
 
 ---
 
@@ -60,19 +55,21 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 
 > **🎉 Group A is now 12/12 — full 4-tool coverage on every pattern.**
 
-### B — `generate` + `detect` target
+### B — full coverage on detect + generate + validate (refactor still out of scope)
 
 | Pattern | `pattern_examples` | `generate` | `detect` | `validate` | `refactor` |
 |---|:---:|:---:|:---:|:---:|:---:|
-| Abstract Factory | ✅ | ✅ | ✅ | ⚪ | ⚪ |
-| Bridge | ✅ | ✅ | ✅ | ⚪ | ⚪ |
-| Facade | ✅ | ✅ | ✅ | ⚪ | ⚪ |
-| Visitor | ✅ | ✅ | ✅ | ⚪ | ⚪ |
-| Chain of Responsibility | ✅ | ✅ | ✅ | ⚪ | ⚪ |
-| Mediator | ✅ | ✅ | ✅ | ⚪ | ⚪ |
-| **Group B subtotals** | **6/6** | **6/6** | **6/6** | – | – |
+| Abstract Factory | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| Bridge | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| Facade | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| Visitor | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| Chain of Responsibility | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| Mediator | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **Group B subtotals** | **6/6** | **6/6** | **6/6** | **6/6** | – |
 
-> **🎉 Group B is now 6/6 — full target coverage (generate + detect).**
+> **🎉 Group B now ships validators too. `refactor` remains out of
+> scope — atomic AST rewrites are riskier than read-only validation
+> for these patterns (no consensus on "the one obvious fix").**
 
 ### C — examples-only by design (now extended with detect + generate)
 
@@ -98,7 +95,7 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | `pattern_examples` | 23 | 23 | 100% | `src/main/resources/examples/<slug>/` directories |
 | `generate_pattern` | 23 | 23 | 100% | `PatternGenerator.SUPPORTED` |
 | `detect_pattern` | 23 | 23 | 100% | `PatternDetectionEngine` detectors list |
-| `validate_pattern` | 12 | 23 | 52% | `PatternValidationEngine` validators list |
+| `validate_pattern` | 18 | 23 | 78% | `PatternValidationEngine` validators list |
 | `refactor_to_pattern` | 14 refactorings on 12 patterns | – | – | `RefactoringId` enum |
 
 ---
@@ -136,26 +133,26 @@ All twelve Group-A patterns have full 4-tool coverage: generate +
 detect + validate + refactor, alongside the universal
 pattern_examples support.
 
-### ✅ Group B — complete (6/6)
+### ✅ Group B — complete (6/6) on generate + detect + validate
 
-All six Group-B patterns now have their target coverage:
-generate + detect. `validate` and `refactor` remain intentionally
-out of scope for this group (see "Strategic grouping" above).
+All six Group-B patterns ship generate, detect AND a quality
+validator. `refactor` remains intentionally out of scope —
+atomic AST rewrites would be riskier than read-only validation
+for these patterns (no consensus on "the one obvious fix").
 
-### ✅ Group C — complete (5/5)
+### ✅ Group C — complete (5/5) on generate + detect
 
-All five Group-C patterns now ship generate + detect too. The
-original "examples-only" status was upgraded in the final
-milestone — every GoF pattern now has at least three of the
-five tools (examples + generate + detect). `validate` and
-`refactor` stay out of scope for the same reason as Group B.
+All five Group-C patterns ship generate + detect. `validate`
+and `refactor` stay out of scope: the patterns are rare or
+superseded by JDK idioms, so the cost / value ratio doesn't
+justify additional engines.
 
-### 🎯 23/23 GoF coverage across `pattern_examples`, `generate_pattern`, and `detect_pattern`
+### 🎯 23/23 GoF coverage on pattern_examples, generate_pattern, detect_pattern. 18/23 on validate_pattern. 12/23 on refactor_to_pattern.
 
-The MCP can now generate, detect, and bundle a canonical example
-for every Gang-of-Four pattern. `validate_pattern` and
-`refactor_to_pattern` deliberately stop at Group A (12/12) —
-high-frequency patterns with crisp anti-pattern definitions.
+The MCP can scaffold and recognise every Gang-of-Four pattern.
+It can validate 18 of them (every Group A + Group B). It can
+auto-fix anti-patterns in 12 of them (every Group A, with 14
+atomic recipes total).
 
 ### Per-pattern benchmark
 
@@ -168,12 +165,14 @@ high-frequency patterns with crisp anti-pattern definitions.
 | Composite + Proxy | June 2026 | ~1090 | 10 (2 generate template sets + 2 validators + 2 refactorings) | 17 | Final full-rollout round that closed Group A. Composite adds a "children getter returns live collection" ERROR — a substantive structural rule, not just a modifier check. Proxy distinguishes itself from Decorator by name-hint heuristic (proxy / cache / lazy / auth / remote / …) so the validator stays out of Decorator's lane. |
 | Group B (all 6 patterns) | June 2026 | ~1310 | 30 (6 detectors + 24 template files) | 7 | Detect + generate roll-out for the whole Group B in one milestone. Each detector follows the same "structural fingerprint" approach: e.g. Abstract Factory requires ≥2 distinct-typed `create*()` methods AND ≥1 concrete impl; Bridge requires an abstract class holding an interface-typed field with concrete classes on both sides; Visitor requires `accept(Visitor)` + ≥2 overloaded `visit(...)` on the visitor type. Tests: a synthetic "bundled detected" case for each detector with confidence ≥ 1.0. |
 | Group C (all 5 patterns) | June 2026 | ~1120 | 24 (5 detectors + 18 template files + 1 README) | 5 | Detect + generate roll-out for the rarely-used patterns. Prototype recognises `clone()` + copy constructor; Flyweight requires a static Map cache + `computeIfAbsent` interning; Interpreter wants an interpret/evaluate method + ≥2 concrete expressions; Iterator deliberately ignores the JDK's own Iterator/Iterable so only hand-rolled abstractions are reported; Memento spots the originator's save/restore method pair. This milestone took the project to 23/23 generate + detect coverage. |
+| Group B validators (all 6 patterns) | June 2026 | ~1350 | 6 validators | 18 | Quality validators for the entire Group B in one milestone. Each picks 3-4 concrete anti-patterns: Abstract Factory flags concrete contract + concrete product returns; Bridge flags non-final bridge field + missing null-check; Facade flags non-private subsystem fields + subsystem-type getters; Visitor's marquee rule catches broken double-dispatch (`accept` not calling `v.visit(this)`); Chain of Responsibility flags handle bodies that NPE on the last link; Mediator flags non-final mediator fields + direct peer references between colleagues. `refactor` for these patterns stays intentionally out of scope. |
 
-**Project total cost** across 7 milestones: ~5870 LOC of new code,
-~82 new tests. The average full-pattern rollout cost ~480 LOC;
+**Project total cost** across 8 milestones: ~7220 LOC of new code,
+~100 new tests. The average full-pattern rollout cost ~480 LOC;
 refactor-only follow-ups are ~3x cheaper at ~160 LOC per pattern;
 detect-only follow-ups (Groups B and C) average ~220 LOC per
-pattern (detector + template-set + 1 snippet test).
+pattern; validator-only follow-ups (Group B validators) average
+~225 LOC per pattern.
 
 ### 🏁 What's left
 

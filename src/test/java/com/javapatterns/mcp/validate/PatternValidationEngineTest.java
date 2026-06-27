@@ -14,13 +14,15 @@ class PatternValidationEngineTest {
     private final PatternValidationEngine engine = PatternValidationEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports the 12 wired validators")
+    @DisplayName("engine reports the 18 wired validators")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
             Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER,
             Pattern.STRATEGY, Pattern.FACTORY_METHOD, Pattern.ADAPTER,
             Pattern.TEMPLATE_METHOD, Pattern.DECORATOR, Pattern.STATE,
-            Pattern.COMMAND, Pattern.COMPOSITE, Pattern.PROXY);
+            Pattern.COMMAND, Pattern.COMPOSITE, Pattern.PROXY,
+            Pattern.ABSTRACT_FACTORY, Pattern.BRIDGE, Pattern.FACADE,
+            Pattern.VISITOR, Pattern.CHAIN_OF_RESPONSIBILITY, Pattern.MEDIATOR);
     }
 
     // ─── Singleton ─────────────────────────────────────────────────
@@ -1020,5 +1022,370 @@ class PatternValidationEngineTest {
         assertThat(issues)
             .as("class with no proxy hint should not trigger ProxyValidator: " + issues)
             .isEmpty();
+    }
+
+    // ─── Abstract Factory ──────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Abstract Factory example yields no ERROR or WARNING")
+    void bundledAbstractFactoryHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.ABSTRACT_FACTORY)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.ABSTRACT_FACTORY);
+            assertThat(issues)
+                .as("bundled Abstract Factory example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Concrete Abstract-Factory contract with concrete impls is ERROR")
+    void concreteAbstractFactoryContractIsError() {
+        String source = """
+            interface Button { String paint(); }
+            interface Checkbox { String paint(); }
+            public class GUIFactory {  // concrete instead of interface!
+                public Button createButton() { return () -> "default"; }
+                public Checkbox createCheckbox() { return () -> "default"; }
+            }
+            public final class MacFactory extends GUIFactory {
+                public Button createButton() { return () -> "mac"; }
+                public Checkbox createCheckbox() { return () -> "mac"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ABSTRACT_FACTORY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("concrete class");
+        });
+    }
+
+    @Test
+    @DisplayName("Concrete factory returning a concrete product is WARNING")
+    void concreteProductReturnIsWarning() {
+        String source = """
+            interface Button { String paint(); }
+            interface Checkbox { String paint(); }
+            interface GUIFactory {
+                Button createButton();
+                Checkbox createCheckbox();
+            }
+            final class HtmlButton implements Button { public String paint() { return "<button/>"; } }
+            final class HtmlCheckbox implements Checkbox { public String paint() { return "<input/>"; } }
+            public final class HtmlFactory implements GUIFactory {
+                public HtmlButton createButton() { return new HtmlButton(); }  // concrete!
+                public HtmlCheckbox createCheckbox() { return new HtmlCheckbox(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ABSTRACT_FACTORY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("concrete product type");
+        });
+    }
+
+    // ─── Bridge ────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Bridge example yields no ERROR or WARNING")
+    void bundledBridgeHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.BRIDGE)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.BRIDGE);
+            assertThat(issues)
+                .as("bundled Bridge example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Bridge with non-final bridge field is ERROR")
+    void nonFinalBridgeFieldIsError() {
+        String source = """
+            interface Renderer { String render(String s); }
+            public abstract class Shape {
+                protected Renderer renderer;  // not final!
+                protected Shape(Renderer r) { this.renderer = java.util.Objects.requireNonNull(r); }
+                public abstract String draw();
+            }
+            final class Circle extends Shape {
+                Circle(Renderer r) { super(r); }
+                public String draw() { return renderer.render("circle"); }
+            }
+            final class VectorRenderer implements Renderer {
+                public String render(String s) { return "<v>" + s + "</v>"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.BRIDGE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Bridge constructor without null-check is WARNING")
+    void bridgeWithoutNullCheckIsWarning() {
+        String source = """
+            interface Renderer { String render(String s); }
+            public abstract class Shape {
+                protected final Renderer renderer;
+                protected Shape(Renderer r) { this.renderer = r; }
+                public abstract String draw();
+            }
+            final class Circle extends Shape {
+                Circle(Renderer r) { super(r); }
+                public String draw() { return renderer.render("circle"); }
+            }
+            final class VectorRenderer implements Renderer {
+                public String render(String s) { return "<v>" + s + "</v>"; }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.BRIDGE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("null-check");
+        });
+    }
+
+    // ─── Facade ────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Facade example yields no ERROR or WARNING")
+    void bundledFacadeHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.FACADE)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.FACADE);
+            assertThat(issues)
+                .as("bundled Facade example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Facade with non-private subsystem field is ERROR")
+    void nonPrivateSubsystemIsError() {
+        String source = """
+            final class Inventory { boolean reserve(String s, int q) { return true; } }
+            final class Payment   { String charge(String c, double a) { return "PMT"; } }
+            public final class OrderFacade {
+                Inventory inventory = new Inventory();   // package-private, not private!
+                private final Payment payment = new Payment();
+                public String placeOrder(String sku, int q, String card) {
+                    inventory.reserve(sku, q);
+                    return payment.charge(card, q * 9.99);
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.FACADE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("non-private");
+        });
+    }
+
+    @Test
+    @DisplayName("Facade returning a subsystem type is WARNING")
+    void facadeReturningSubsystemIsWarning() {
+        String source = """
+            final class Inventory { boolean reserve(String s, int q) { return true; } }
+            final class Payment   { String charge(String c, double a) { return "PMT"; } }
+            public final class OrderFacade {
+                private final Inventory inventory = new Inventory();
+                private final Payment payment = new Payment();
+                public Inventory inventory() { return inventory; }  // leaks subsystem!
+                public String placeOrder(String sku, int q, String card) {
+                    inventory.reserve(sku, q);
+                    return payment.charge(card, q * 9.99);
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.FACADE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("returns subsystem type");
+        });
+    }
+
+    // ─── Visitor ───────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Visitor example yields no ERROR or WARNING")
+    void bundledVisitorHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.VISITOR)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.VISITOR);
+            assertThat(issues)
+                .as("bundled Visitor example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Concrete accept() that does not dispatch v.visit(this) is ERROR")
+    void brokenAcceptDispatchIsError() {
+        String source = """
+            interface Shape { String accept(ShapeVisitor v); }
+            interface ShapeVisitor {
+                String visit(Circle c);
+                String visit(Square s);
+            }
+            final class Circle implements Shape {
+                public String accept(ShapeVisitor v) { return "hardcoded"; }  // broken!
+            }
+            final class Square implements Shape {
+                public String accept(ShapeVisitor v) { return v.visit(this); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.VISITOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("double-dispatch");
+        });
+    }
+
+    @Test
+    @DisplayName("Visitor whose visit methods all return void is WARNING")
+    void voidVisitorIsWarning() {
+        String source = """
+            interface Shape { void accept(ShapeVisitor v); }
+            interface ShapeVisitor {
+                void visit(Circle c);
+                void visit(Square s);
+            }
+            final class Circle implements Shape {
+                public void accept(ShapeVisitor v) { v.visit(this); }
+            }
+            final class Square implements Shape {
+                public void accept(ShapeVisitor v) { v.visit(this); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.VISITOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("void");
+        });
+    }
+
+    // ─── Chain of Responsibility ───────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Chain of Responsibility example yields no ERROR or WARNING")
+    void bundledChainHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.CHAIN_OF_RESPONSIBILITY)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.CHAIN_OF_RESPONSIBILITY);
+            assertThat(issues)
+                .as("bundled Chain example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Handler.handle() without null-check on next is ERROR")
+    void chainHandleWithoutNullCheckIsError() {
+        String source = """
+            public abstract class Handler {
+                protected Handler next;
+                public Handler setNext(Handler n) { this.next = n; return n; }
+                public String handle(String r) { return next.handle(r); }  // NPE waiting!
+            }
+            final class AuthHandler extends Handler { }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.CHAIN_OF_RESPONSIBILITY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("npe");
+        });
+    }
+
+    @Test
+    @DisplayName("Handler without setNext is WARNING")
+    void chainWithoutSetNextIsWarning() {
+        String source = """
+            public abstract class Handler {
+                protected Handler next;
+                public String handle(String r) {
+                    if (next != null) return next.handle(r);
+                    return "no-op";
+                }
+            }
+            final class AuthHandler extends Handler { }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.CHAIN_OF_RESPONSIBILITY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue().toLowerCase()).contains("setnext");
+        });
+    }
+
+    // ─── Mediator ──────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Mediator example yields no ERROR or WARNING")
+    void bundledMediatorHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.MEDIATOR)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.MEDIATOR);
+            assertThat(issues)
+                .as("bundled Mediator example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Colleague with non-final mediator field is ERROR")
+    void nonFinalMediatorFieldIsError() {
+        String source = """
+            interface ChatMediator {
+                void send(String from, String msg);
+                ChatMediator register(Colleague c);
+            }
+            abstract class Colleague {
+                protected ChatMediator mediator;  // not final!
+                protected final String name;
+                Colleague(String n, ChatMediator m) { this.name = n; this.mediator = m; }
+                public String name() { return name; }
+                public abstract void receive(String from, String msg);
+                public void send(String msg) { mediator.send(name, msg); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.MEDIATOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Colleague holding a direct peer reference is WARNING")
+    void peerReferenceIsWarning() {
+        String source = """
+            interface ChatMediator {
+                void send(String from, String msg);
+                ChatMediator register(Colleague c);
+            }
+            class Colleague {
+                protected final ChatMediator mediator;
+                protected final String name;
+                Colleague(String n, ChatMediator m) { this.name = n; this.mediator = m; }
+                public String name() { return name; }
+                public void receive(String from, String msg) { }
+                public void send(String msg) { mediator.send(name, msg); }
+            }
+            // TalkativeUser is itself a colleague (holds a ChatMediator field directly)
+            // AND keeps a peer reference to another colleague — the validator should flag it.
+            final class TalkativeUser {
+                private final ChatMediator mediator;
+                private final Colleague friend;   // direct peer reference!
+                TalkativeUser(ChatMediator m, Colleague f) { this.mediator = m; this.friend = f; }
+                public void poke() { friend.receive("self", "hey"); }   // bypassing mediator
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.MEDIATOR);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("direct reference");
+        });
     }
 }

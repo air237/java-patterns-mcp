@@ -45,7 +45,13 @@ public final class PatternValidationEngine {
             new StateValidator(),
             new CommandValidator(),
             new CompositeValidator(),
-            new ProxyValidator()
+            new ProxyValidator(),
+            new AbstractFactoryValidator(),
+            new BridgeValidator(),
+            new FacadeValidator(),
+            new VisitorValidator(),
+            new ChainOfResponsibilityValidator(),
+            new MediatorValidator()
         );
     }
 
