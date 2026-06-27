@@ -8,6 +8,7 @@ import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.modelcontextprotocol.spec.McpSchema.TextContent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -15,8 +16,10 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +81,7 @@ class GeneratePatternToolTest {
 
     @Test
     @DisplayName("each supported pattern produces sources that compile standalone with a String type parameter")
-    void allSupportedPatternsCompile() {
+    void allSupportedPatternsCompile(@TempDir Path classOutput) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertThat(compiler).isNotNull();
 
@@ -108,7 +111,7 @@ class GeneratePatternToolTest {
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> files = (List<Map<String, Object>>) payload.get("files");
-            compileFiles(compiler, p, files);
+            compileFiles(compiler, p, files, classOutput);
         }
     }
 
@@ -141,7 +144,7 @@ class GeneratePatternToolTest {
         assertThat(text).containsIgnoringCase("pattern_examples");
     }
 
-    private void compileFiles(JavaCompiler compiler, Pattern pattern, List<Map<String, Object>> files) {
+    private void compileFiles(JavaCompiler compiler, Pattern pattern, List<Map<String, Object>> files, Path classOutput) {
         List<JavaFileObject> sources = new ArrayList<>(files.size());
         for (Map<String, Object> f : files) {
             String fileName = (String) f.get("fileName");
@@ -153,6 +156,11 @@ class GeneratePatternToolTest {
 
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         try (StandardJavaFileManager fm = compiler.getStandardFileManager(diagnostics, null, java.nio.charset.StandardCharsets.UTF_8)) {
+            // Redirect generated .class files into the per-test @TempDir so the
+            // project root never gets polluted (regression-fix for the stray
+            // *.class files that used to land next to pom.xml).
+            fm.setLocationFromPaths(StandardLocation.CLASS_OUTPUT, List.of(classOutput));
+
             JavaCompiler.CompilationTask task = compiler.getTask(
                 null, fm, diagnostics, List.of("--release", "21"), null, sources);
             boolean ok = task.call();
