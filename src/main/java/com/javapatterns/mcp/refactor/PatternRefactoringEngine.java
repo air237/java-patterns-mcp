@@ -40,6 +40,8 @@ public final class PatternRefactoringEngine {
         register(new ObserverSnapshotIteration());
         register(new AdapterMakeAdapteeFinal());
         register(new TemplateMethodMakeFinal());
+        register(new FactoryMethodRestrictCreatorCtor());
+        register(new StrategyAddFunctionalInterface());
     }
 
     private void register(PatternRefactoring r) {

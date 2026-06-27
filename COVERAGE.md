@@ -41,9 +41,9 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 |---|:---:|:---:|:---:|:---:|:---:|
 | Singleton | ✅ | ✅ | ✅ | ✅ | ✅ (3) |
 | Builder | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
-| Factory Method | ✅ | ✅ | ✅ | ✅ | ⛔ |
+| Factory Method | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
 | Observer | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
-| Strategy | ✅ | ✅ | ✅ | ✅ | ⛔ |
+| Strategy | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
 | Decorator | ✅ | ✅ | ✅ | ⛔ | ⛔ |
 | State | ✅ | ✅ | ✅ | ⛔ | ⛔ |
 | Command | ✅ | ✅ | ✅ | ⛔ | ⛔ |
@@ -51,7 +51,7 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | Composite | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
 | Proxy | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
 | Template Method | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
-| **Group A subtotals** | **12/12** | **10/12** | **12/12** | **6/12** | **4 patterns / 7 refactorings** |
+| **Group A subtotals** | **12/12** | **10/12** | **12/12** | **6/12** | **6 patterns / 9 refactorings** |
 
 ### B — `generate` + `detect` target
 
@@ -86,7 +86,7 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | `generate_pattern` | 10 | 23 | 43% | `PatternGenerator.SUPPORTED` |
 | `detect_pattern` | 12 | 23 | 52% | `PatternDetectionEngine` detectors list |
 | `validate_pattern` | 7 | 23 | 30% | `PatternValidationEngine` validators list |
-| `refactor_to_pattern` | 7 refactorings on 5 patterns | – | – | `RefactoringId` enum |
+| `refactor_to_pattern` | 9 refactorings on 6 patterns | – | – | `RefactoringId` enum |
 
 ---
 
@@ -105,6 +105,8 @@ pass to the MCP tool.
 | `observer-snapshot-iteration` | Observer | Wrap the iterated collection of a publish-like method with `List.copyOf(...)`. |
 | `adapter-make-adaptee-final` | Adapter | Mark the adaptee field of an Adapter-shaped class as `final`. |
 | `template-method-make-final` | Template Method | Mark the template method of an abstract class as `final` so subclasses cannot bypass the locked algorithm skeleton. |
+| `factory-method-restrict-creator-ctor` | Factory Method | Demote public constructors of a concrete Creator (Factory-Method-shaped class) to `protected` so callers cannot bypass the factory method. |
+| `strategy-add-functional-interface` | Strategy | Annotate a single-method `*Strategy` interface with `@FunctionalInterface` so the compiler protects the SAM contract. |
 
 ---
 
@@ -114,15 +116,14 @@ The 12 Group-A patterns are the priority target. Concrete gaps:
 
 ### 3 missing `generate` templates
 Composite · Proxy
-(Adapter completed in commit `ca5441d`; Template Method completed in commit `<TBD>`.)
+(Adapter completed in commit `ca5441d`; Template Method completed in commit `8131fe1`.)
 
 ### 6 missing `validate` validators
 Decorator · State · Command · Composite · Proxy
-(Adapter completed in commit `ca5441d`; Template Method completed in commit `<TBD>`.)
 
-### 8 patterns without any `refactor` recipe
-Factory Method · Strategy · Decorator · State · Command · Composite · Proxy
-(5 patterns now have ≥1 refactoring: Singleton, Builder, Observer, Adapter, Template Method.)
+### 5 patterns without any `refactor` recipe
+Decorator · State · Command · Composite · Proxy
+(7 patterns now have ≥1 refactoring: Singleton, Builder, Observer, Adapter, Template Method, Factory Method, Strategy. The remaining 5 Group-A patterns all need both a validator AND a refactoring recipe.)
 
 ### Per-pattern benchmark
 
@@ -130,13 +131,19 @@ Factory Method · Strategy · Decorator · State · Command · Composite · Prox
 |---|---|---:|---:|---:|---|
 | Adapter | June 2026 | ~480 | 6 | 8 | First full Group-A rollout: object-adapter shape with composition, null-check guard, class-adapter detection. |
 | Template Method | June 2026 | ~410 | 5 | 9 | Educational follow-up: shows what Template Method IS (inheritance + abstract hooks) and what it is NOT (lambda-strategy). Caught the EJ-19 "constructor calls overridable method" anti-pattern. |
+| Factory Method + Strategy | June 2026 | ~320 | 2 (refactorings) | 10 | Refactor-only round: closed the last two "validator without refactor" gaps with two atomic recipes (`factory-method-restrict-creator-ctor`, `strategy-add-functional-interface`). |
 
-Average per pattern so far: ~445 LOC, ~5.5 new files, ~8.5 new tests.
+Average per pattern so far for full rollouts (Adapter, Template
+Method): ~445 LOC / ~8.5 new tests. The Factory Method + Strategy
+round was a "refactor-only" follow-up — much smaller because
+generate and validate were already in place; each pattern needed
+only ~140 LOC of new code (one refactoring + tests).
 
-Extrapolated to the remaining 8 Group-A patterns (those that still
-need at least one of generate / validate / refactor): roughly
-3500-4000 LOC of new code, ~12-15 hours of work, to bring Group A
-to full coverage.
+Extrapolated to the remaining 5 Group-A patterns (Decorator,
+State, Command, Composite, Proxy — each still needs both a
+validator AND a refactoring; Composite and Proxy also need a
+generate template): roughly 2500-3000 LOC of new code, ~10 hours
+of work, to bring Group A to full coverage.
 
 ---
 

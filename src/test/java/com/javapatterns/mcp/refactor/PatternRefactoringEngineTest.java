@@ -10,7 +10,7 @@ class PatternRefactoringEngineTest {
     private final PatternRefactoringEngine engine = PatternRefactoringEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports all 7 wired refactorings")
+    @DisplayName("engine reports all 9 wired refactorings")
     void supported() {
         assertThat(engine.supported()).containsExactlyInAnyOrder(
             RefactoringId.SINGLETON_MAKE_CTOR_PRIVATE,
@@ -19,7 +19,9 @@ class PatternRefactoringEngineTest {
             RefactoringId.BUILDER_MAKE_FIELDS_FINAL,
             RefactoringId.OBSERVER_SNAPSHOT_ITERATION,
             RefactoringId.ADAPTER_MAKE_ADAPTEE_FINAL,
-            RefactoringId.TEMPLATE_METHOD_MAKE_FINAL
+            RefactoringId.TEMPLATE_METHOD_MAKE_FINAL,
+            RefactoringId.FACTORY_METHOD_RESTRICT_CREATOR_CTOR,
+            RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE
         );
     }
 
@@ -322,6 +324,149 @@ class PatternRefactoringEngineTest {
             """;
         RefactoringResult r = engine.apply(src, RefactoringId.TEMPLATE_METHOD_MAKE_FINAL);
         assertThat(r.changed()).isFalse();
+    }
+
+    // ─── Factory Method: restrict creator ctor ─────────────────────
+
+    @Test
+    @DisplayName("factory-method-restrict-creator-ctor demotes a public Creator ctor to protected")
+    void factoryMethodRestrictCreatorCtor_demotes() {
+        String src = """
+            interface Button { String click(); }
+            public class HtmlDialog {
+                public HtmlDialog() {}
+                protected Button createButton() { return () -> "html"; }
+                public String render() { return createButton().click(); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.FACTORY_METHOD_RESTRICT_CREATOR_CTOR);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("protected HtmlDialog()");
+        assertThat(r.newSource()).doesNotContain("public HtmlDialog()");
+        assertThat(r.changes()).anyMatch(s -> s.contains("HtmlDialog") && s.contains("protected"));
+    }
+
+    @Test
+    @DisplayName("factory-method-restrict-creator-ctor is idempotent on already-protected ctor")
+    void factoryMethodRestrictCreatorCtor_idempotent() {
+        String src = """
+            interface Button { String click(); }
+            public class HtmlDialog {
+                protected HtmlDialog() {}
+                protected Button createButton() { return () -> "html"; }
+                public String render() { return createButton().click(); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.FACTORY_METHOD_RESTRICT_CREATOR_CTOR);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("factory-method-restrict-creator-ctor ignores plain classes without a factory method")
+    void factoryMethodRestrictCreatorCtor_ignoresPlainClasses() {
+        String src = """
+            public class PlainPojo {
+                public PlainPojo() {}
+                public String hello() { return "hi"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.FACTORY_METHOD_RESTRICT_CREATOR_CTOR);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("factory-method-restrict-creator-ctor skips Builder-named classes")
+    void factoryMethodRestrictCreatorCtor_skipsBuilders() {
+        String src = """
+            public class CarBuilder {
+                public CarBuilder() {}
+                public String build() { return "car"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.FACTORY_METHOD_RESTRICT_CREATOR_CTOR);
+        assertThat(r.changed()).isFalse();
+    }
+
+    // ─── Strategy: add @FunctionalInterface ────────────────────────
+
+    @Test
+    @DisplayName("strategy-add-functional-interface annotates a single-method Strategy interface")
+    void strategyAddFunctionalInterface_annotates() {
+        String src = """
+            public interface SortStrategy {
+                java.util.List<Integer> sort(java.util.List<Integer> in);
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("@FunctionalInterface");
+        assertThat(r.changes()).anyMatch(s -> s.contains("SortStrategy") && s.contains("FunctionalInterface"));
+    }
+
+    @Test
+    @DisplayName("strategy-add-functional-interface is idempotent on already-annotated interface")
+    void strategyAddFunctionalInterface_idempotent() {
+        String src = """
+            @FunctionalInterface
+            public interface SortStrategy {
+                java.util.List<Integer> sort(java.util.List<Integer> in);
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("strategy-add-functional-interface ignores multi-method strategies")
+    void strategyAddFunctionalInterface_ignoresMultiMethod() {
+        String src = """
+            public interface FatStrategy {
+                String first();
+                String second();
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
+        assertThat(r.changed()).isFalse();
+        assertThat(r.newSource()).doesNotContain("@FunctionalInterface");
+    }
+
+    @Test
+    @DisplayName("strategy-add-functional-interface ignores non-Strategy interfaces")
+    void strategyAddFunctionalInterface_ignoresNonStrategy() {
+        String src = """
+            public interface Comparator<T> {
+                int compare(T a, T b);
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("strategy-add-functional-interface ignores concrete classes (even named *Strategy)")
+    void strategyAddFunctionalInterface_ignoresConcreteClasses() {
+        String src = """
+            public class ConcreteStrategy {
+                public String run() { return "x"; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("strategy-add-functional-interface tolerates default/static methods (still a SAM)")
+    void strategyAddFunctionalInterface_tolerantOfDefaultsAndStatics() {
+        String src = """
+            public interface SortStrategy {
+                java.util.List<Integer> sort(java.util.List<Integer> in);
+                default boolean stable() { return false; }
+                static SortStrategy noop() { return in -> in; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("@FunctionalInterface");
     }
 
     // ─── error paths ───────────────────────────────────────────────

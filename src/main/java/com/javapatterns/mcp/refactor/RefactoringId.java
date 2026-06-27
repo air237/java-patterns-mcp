@@ -30,7 +30,15 @@ public enum RefactoringId {
         "Mark the adaptee field of an Adapter-shaped class as final."),
     TEMPLATE_METHOD_MAKE_FINAL(
         Pattern.TEMPLATE_METHOD, "template-method-make-final",
-        "Mark the template method of a Template-Method-shaped abstract class as final.");
+        "Mark the template method of a Template-Method-shaped abstract class as final."),
+    FACTORY_METHOD_RESTRICT_CREATOR_CTOR(
+        Pattern.FACTORY_METHOD, "factory-method-restrict-creator-ctor",
+        "Demote public constructors of a concrete Creator (Factory-Method-shaped class) "
+        + "to protected so callers cannot bypass the factory method."),
+    STRATEGY_ADD_FUNCTIONAL_INTERFACE(
+        Pattern.STRATEGY, "strategy-add-functional-interface",
+        "Annotate a single-method Strategy interface with @FunctionalInterface "
+        + "so the compiler protects the SAM contract.");
 
     private final Pattern pattern;
     private final String slug;
