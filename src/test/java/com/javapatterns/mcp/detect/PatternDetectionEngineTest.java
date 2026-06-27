@@ -323,4 +323,71 @@ class PatternDetectionEngineTest {
             assertThat(e.getMessage()).containsIgnoringCase("parse");
         }
     }
+
+    @Test
+    @DisplayName("detectAll runs every source in one pass and labels hits with their file")
+    void detectAllRunsBatch() {
+        java.util.Map<String, String> sources = new java.util.LinkedHashMap<>();
+        sources.put("a/Logger.java", """
+            package a;
+            public final class Logger {
+                private static final Logger INSTANCE = new Logger();
+                private Logger() {}
+                public static Logger getInstance() { return INSTANCE; }
+            }
+            """);
+        sources.put("b/Pizza.java", """
+            package b;
+            public final class Pizza {
+                private final String dough;
+                private Pizza(Builder bld) { this.dough = bld.dough; }
+                public static final class Builder {
+                    private String dough;
+                    public Builder dough(String d) { this.dough = d; return this; }
+                    public Pizza build() { return new Pizza(this); }
+                }
+            }
+            """);
+
+        PatternDetectionEngine.BatchResult batch = engine.detectAll(sources);
+
+        assertThat(batch.filesAnalyzed()).isEqualTo(2);
+        assertThat(batch.errors()).isEmpty();
+
+        // Every detection knows which file it came from.
+        assertThat(batch.detections()).allSatisfy(fd ->
+            assertThat(fd.file()).isIn("a/Logger.java", "b/Pizza.java"));
+
+        // Both patterns must turn up in the combined output.
+        java.util.Set<Pattern> seen = new java.util.HashSet<>();
+        for (PatternDetectionEngine.FileDetection fd : batch.detections()) {
+            seen.add(fd.detection().pattern());
+        }
+        assertThat(seen).contains(Pattern.SINGLETON, Pattern.BUILDER);
+    }
+
+    @Test
+    @DisplayName("detectAll isolates parse errors per file instead of throwing")
+    void detectAllIsolatesParseErrors() {
+        java.util.Map<String, String> sources = new java.util.LinkedHashMap<>();
+        sources.put("good.java", """
+            package g;
+            public final class S {
+                private static final S I = new S();
+                private S() {}
+                public static S getInstance() { return I; }
+            }
+            """);
+        sources.put("bad.java", "this is not java { { {");
+
+        PatternDetectionEngine.BatchResult batch = engine.detectAll(sources);
+
+        assertThat(batch.filesAnalyzed())
+            .as("only the good file actually parsed")
+            .isEqualTo(1);
+        assertThat(batch.errors()).hasSize(1);
+        assertThat(batch.errors().get(0).file()).isEqualTo("bad.java");
+        assertThat(batch.detections()).isNotEmpty();
+        assertThat(batch.detections().get(0).file()).isEqualTo("good.java");
+    }
 }
