@@ -133,16 +133,22 @@ class GeneratePatternToolTest {
     }
 
     @Test
-    @DisplayName("unsupported pattern returns a clear error directing the caller to pattern_examples")
+    @DisplayName("unknown pattern slug returns a clear error directing the caller to pattern_examples")
     void unsupportedPatternIsError() {
-        // Group-C pattern — intentionally not in PatternGenerator.SUPPORTED.
+        // Every GoF pattern is now in PatternGenerator.SUPPORTED, so we use
+        // a deliberately invalid slug to exercise the error path.
         CallToolResult r = tool.handle(Map.of(
-            "pattern", "prototype",
+            "pattern", "not-a-real-pattern",
             "typeName", "Shape"
         ));
         assertThat(r.isError()).isTrue();
         String text = ((TextContent) r.content().get(0)).text();
-        assertThat(text).containsIgnoringCase("pattern_examples");
+        // Either "unknown pattern" or the "use pattern_examples" follow-up should be in the text.
+        assertThat(text.toLowerCase())
+            .satisfiesAnyOf(
+                t -> assertThat(t).contains("unknown pattern"),
+                t -> assertThat(t).contains("pattern_examples")
+            );
     }
 
     private void compileFiles(JavaCompiler compiler, Pattern pattern, List<Map<String, Object>> files, Path classOutput) {

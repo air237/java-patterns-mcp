@@ -1,0 +1,44 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Concrete prototype — adds its own state and overrides
+ * {@link #clone()} via a private copy constructor that chains to
+ * {@link ${TYPE_NAME}#${TYPE_NAME}(${TYPE_NAME})}.
+ */
+public final class Concrete${TYPE_NAME} extends ${TYPE_NAME} {
+
+    private int radius;
+
+    public Concrete${TYPE_NAME}() { }
+
+    private Concrete${TYPE_NAME}(Concrete${TYPE_NAME} source) {
+        super(source);
+        this.radius = source.radius;
+    }
+
+    public int radius() { return radius; }
+
+    public Concrete${TYPE_NAME} radius(int r) {
+        this.radius = r;
+        return this;
+    }
+
+    @Override
+    public Concrete${TYPE_NAME} clone() {
+        return new Concrete${TYPE_NAME}(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Concrete${TYPE_NAME} c)) return false;
+        return super.equals(o) && radius == c.radius;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), radius);
+    }
+}

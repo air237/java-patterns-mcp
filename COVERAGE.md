@@ -25,8 +25,13 @@ prioritisation buckets:
 | Group | Patterns | Strategy |
 |---|---|---|
 | **A — full 4-tool coverage worthwhile** | Singleton, Builder, Factory Method, Observer, Strategy, Decorator, State, Command, Adapter, Composite, Proxy, Template Method | High-frequency patterns with well-known anti-pattern variants. Worth implementing `generate` + `detect` + `validate` + `refactor`. |
-| **B — `generate` + `detect` only** | Abstract Factory, Bridge, Facade, Visitor, Chain of Responsibility, Mediator | Common enough to recognise and scaffold; "wrong implementation" is loosely defined → `validate` is low-ROI, `refactor` is rarely the target. |
-| **C — `pattern_examples` (maybe `detect`)** | Prototype, Flyweight, Interpreter, Iterator, Memento | Rare in modern Java, or superseded by JDK idioms (`java.util.Iterator`, records, JVM string interning). The canonical example is the main contribution. |
+| **B — `generate` + `detect`, no validate / refactor** | Abstract Factory, Bridge, Facade, Visitor, Chain of Responsibility, Mediator | Common enough to recognise and scaffold; "wrong implementation" is loosely defined → `validate` is low-ROI, `refactor` is rarely the target. |
+| **C — `generate` + `detect`, no validate / refactor** | Prototype, Flyweight, Interpreter, Iterator, Memento | Rare in modern Java, or superseded by JDK idioms (`java.util.Iterator`, records, JVM string interning). The canonical example + recognition is the main contribution. |
+
+> Group B and Group C have the same tool set in the end — they
+> differ in the *reason* nothing else is built: Group B is
+> "frequent but anti-patterns are fuzzy", Group C is "rare
+> enough that even detect was originally optional".
 
 ---
 
@@ -69,16 +74,20 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 
 > **🎉 Group B is now 6/6 — full target coverage (generate + detect).**
 
-### C — examples-only
+### C — examples-only by design (now extended with detect + generate)
 
 | Pattern | `pattern_examples` | `generate` | `detect` | `validate` | `refactor` |
 |---|:---:|:---:|:---:|:---:|:---:|
-| Prototype | ✅ | ⛔ | ⚪ | ⚪ | ⚪ |
-| Flyweight | ✅ | ⛔ | ⚪ | ⚪ | ⚪ |
-| Interpreter | ✅ | ⛔ | ⚪ | ⚪ | ⚪ |
-| Iterator | ✅ | ⛔ | ⚪ | ⚪ | ⚪ |
-| Memento | ✅ | ⛔ | ⚪ | ⚪ | ⚪ |
-| **Group C subtotals** | **5/5** | **0/5** | – | – | – |
+| Prototype | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Flyweight | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Interpreter | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Iterator | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Memento | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| **Group C subtotals** | **5/5** | **5/5** | **5/5** | – | – |
+
+> **🎉 Group C now ships detect + generate too. `validate` and
+> `refactor` remain intentionally out of scope (no "wrong Prototype"
+> consensus, etc.).**
 
 ---
 
@@ -87,8 +96,8 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | Tool | Implemented | Out of 23 | % | Source of truth |
 |---|---:|---:|---:|---|
 | `pattern_examples` | 23 | 23 | 100% | `src/main/resources/examples/<slug>/` directories |
-| `generate_pattern` | 18 | 23 | 78% | `PatternGenerator.SUPPORTED` |
-| `detect_pattern` | 18 | 23 | 78% | `PatternDetectionEngine` detectors list |
+| `generate_pattern` | 23 | 23 | 100% | `PatternGenerator.SUPPORTED` |
+| `detect_pattern` | 23 | 23 | 100% | `PatternDetectionEngine` detectors list |
 | `validate_pattern` | 12 | 23 | 52% | `PatternValidationEngine` validators list |
 | `refactor_to_pattern` | 14 refactorings on 12 patterns | – | – | `RefactoringId` enum |
 
@@ -133,9 +142,20 @@ All six Group-B patterns now have their target coverage:
 generate + detect. `validate` and `refactor` remain intentionally
 out of scope for this group (see "Strategic grouping" above).
 
-### Group C — examples-only as intended
-Prototype · Flyweight · Interpreter · Iterator · Memento all ship
-canonical example sources and intentionally nothing else.
+### ✅ Group C — complete (5/5)
+
+All five Group-C patterns now ship generate + detect too. The
+original "examples-only" status was upgraded in the final
+milestone — every GoF pattern now has at least three of the
+five tools (examples + generate + detect). `validate` and
+`refactor` stay out of scope for the same reason as Group B.
+
+### 🎯 23/23 GoF coverage across `pattern_examples`, `generate_pattern`, and `detect_pattern`
+
+The MCP can now generate, detect, and bundle a canonical example
+for every Gang-of-Four pattern. `validate_pattern` and
+`refactor_to_pattern` deliberately stop at Group A (12/12) —
+high-frequency patterns with crisp anti-pattern definitions.
 
 ### Per-pattern benchmark
 
@@ -147,12 +167,32 @@ canonical example sources and intentionally nothing else.
 | Decorator + State + Command | June 2026 | ~1140 | 6 (3 validators + 3 refactorings) | 22 | Validate + refactor double round for the three patterns that had detect + generate already. Validators each fire only on detector-shaped classes (zero false positives on the bundled canonical examples). Refactorings are all atomic "promote to final" modifier flips. |
 | Composite + Proxy | June 2026 | ~1090 | 10 (2 generate template sets + 2 validators + 2 refactorings) | 17 | Final full-rollout round that closed Group A. Composite adds a "children getter returns live collection" ERROR — a substantive structural rule, not just a modifier check. Proxy distinguishes itself from Decorator by name-hint heuristic (proxy / cache / lazy / auth / remote / …) so the validator stays out of Decorator's lane. |
 | Group B (all 6 patterns) | June 2026 | ~1310 | 30 (6 detectors + 24 template files) | 7 | Detect + generate roll-out for the whole Group B in one milestone. Each detector follows the same "structural fingerprint" approach: e.g. Abstract Factory requires ≥2 distinct-typed `create*()` methods AND ≥1 concrete impl; Bridge requires an abstract class holding an interface-typed field with concrete classes on both sides; Visitor requires `accept(Visitor)` + ≥2 overloaded `visit(...)` on the visitor type. Tests: a synthetic "bundled detected" case for each detector with confidence ≥ 1.0. |
+| Group C (all 5 patterns) | June 2026 | ~1120 | 24 (5 detectors + 18 template files + 1 README) | 5 | Detect + generate roll-out for the rarely-used patterns. Prototype recognises `clone()` + copy constructor; Flyweight requires a static Map cache + `computeIfAbsent` interning; Interpreter wants an interpret/evaluate method + ≥2 concrete expressions; Iterator deliberately ignores the JDK's own Iterator/Iterable so only hand-rolled abstractions are reported; Memento spots the originator's save/restore method pair. This milestone took the project to 23/23 generate + detect coverage. |
 
-**Project total cost** across 6 milestones: ~4750 LOC of new code,
-~77 new tests. The average full-pattern rollout cost ~480 LOC;
+**Project total cost** across 7 milestones: ~5870 LOC of new code,
+~82 new tests. The average full-pattern rollout cost ~480 LOC;
 refactor-only follow-ups are ~3x cheaper at ~160 LOC per pattern;
-detect-only follow-ups (Group B) are ~220 LOC per pattern
-(detector + template-set + 1 test).
+detect-only follow-ups (Groups B and C) average ~220 LOC per
+pattern (detector + template-set + 1 snippet test).
+
+### 🏁 What's left
+
+Validate + refactor for Groups B and C remain deliberately out of
+scope (see "Strategic grouping" above). Adding them would require
+defining "wrong Visitor" / "wrong Iterator" / etc. with enough
+specificity to be useful, which is a noisy and low-ROI direction.
+
+Project-level follow-ups that would make sense:
+
+* **README polish + end-to-end demo** — show an LLM agent
+  working through the full pipeline on a real codebase.
+* **New MCP tools** — e.g. `compare_patterns` (AST diff between
+  two pattern instances), `recommend_pattern` (suggest a pattern
+  given a problem description).
+* **Maven Central publication** — make the JAR consumable
+  without cloning.
+* **CI bloat** — coverage report, release workflow, signed
+  artifacts.
 
 ---
 

@@ -1,0 +1,27 @@
+${PACKAGE_DECL}
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Flyweight factory — returns a shared {@link ${TYPE_NAME}Type} per
+ * {@code (name, texture, color)} key. The classic interning idiom uses
+ * {@link Map#computeIfAbsent} so each unique combination is created
+ * exactly once and the cache grows monotonically until the factory
+ * itself is discarded.
+ */
+public final class ${TYPE_NAME}TypeFactory {
+
+    private static final Map<String, ${TYPE_NAME}Type> CACHE = new HashMap<>();
+
+    private ${TYPE_NAME}TypeFactory() { /* utility */ }
+
+    public static ${TYPE_NAME}Type get(String name, String texture, String color) {
+        String key = name + "|" + texture + "|" + color;
+        return CACHE.computeIfAbsent(key, k -> new ${TYPE_NAME}Type(name, texture, color));
+    }
+
+    public static int distinctTypesCreated() {
+        return CACHE.size();
+    }
+}

@@ -1,0 +1,7 @@
+${PACKAGE_DECL}
+
+/** Aggregate — produces an iterator over its elements without exposing storage. */
+public interface ${TYPE_NAME}Aggregate<T> {
+
+    ${TYPE_NAME}Iterator<T> iterator();
+}

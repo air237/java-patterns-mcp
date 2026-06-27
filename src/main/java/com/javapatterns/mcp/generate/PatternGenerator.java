@@ -53,7 +53,12 @@ public final class PatternGenerator {
         Pattern.FACADE,
         Pattern.VISITOR,
         Pattern.CHAIN_OF_RESPONSIBILITY,
-        Pattern.MEDIATOR
+        Pattern.MEDIATOR,
+        Pattern.PROTOTYPE,
+        Pattern.FLYWEIGHT,
+        Pattern.INTERPRETER,
+        Pattern.ITERATOR,
+        Pattern.MEMENTO
     );
 
     /** Singleton instance — templates are loaded lazily on first use. */

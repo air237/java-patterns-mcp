@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",        "template": "Expression.java.template" },
+    { "fileName": "${TYPE_NAME}Context.java", "template": "Context.java.template" },
+    { "fileName": "${TYPE_NAME}Nodes.java",   "template": "ConcreteExpressions.java.template" }
+  ]
+}

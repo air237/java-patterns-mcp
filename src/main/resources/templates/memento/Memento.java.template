@@ -1,0 +1,16 @@
+${PACKAGE_DECL}
+
+/**
+ * Memento — an opaque snapshot of an originator's state. Its field
+ * is package-private so only {@link ${TYPE_NAME}} (same package, the
+ * originator) can read it. Callers hold the memento as a black box.
+ */
+public final class ${TYPE_NAME}Memento {
+
+    /** Package-private on purpose: only the originator is allowed to peek. */
+    final String snapshot;
+
+    ${TYPE_NAME}Memento(String snapshot) {
+        this.snapshot = snapshot;
+    }
+}

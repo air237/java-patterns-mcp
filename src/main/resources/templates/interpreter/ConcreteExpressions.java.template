@@ -1,0 +1,49 @@
+${PACKAGE_DECL}
+
+/**
+ * AST nodes for the {@code ${TYPE_NAME}} grammar — bundled in one
+ * holder class for brevity. In a real grammar each would be its own
+ * top-level type.
+ *
+ * <ul>
+ *   <li>{@code Variable} — terminal, looks up a flag in the context.</li>
+ *   <li>{@code And}, {@code Or} — non-terminals, combine two
+ *       sub-expressions.</li>
+ * </ul>
+ */
+public final class ${TYPE_NAME}Nodes {
+
+    private ${TYPE_NAME}Nodes() { /* utility */ }
+
+    public static final class Variable implements ${TYPE_NAME} {
+        private final String name;
+        public Variable(String name) { this.name = name; }
+
+        @Override
+        public boolean evaluate(${TYPE_NAME}Context ctx) {
+            return ctx.get(name);
+        }
+    }
+
+    public static final class And implements ${TYPE_NAME} {
+        private final ${TYPE_NAME} left;
+        private final ${TYPE_NAME} right;
+        public And(${TYPE_NAME} left, ${TYPE_NAME} right) { this.left = left; this.right = right; }
+
+        @Override
+        public boolean evaluate(${TYPE_NAME}Context ctx) {
+            return left.evaluate(ctx) && right.evaluate(ctx);
+        }
+    }
+
+    public static final class Or implements ${TYPE_NAME} {
+        private final ${TYPE_NAME} left;
+        private final ${TYPE_NAME} right;
+        public Or(${TYPE_NAME} left, ${TYPE_NAME} right) { this.left = left; this.right = right; }
+
+        @Override
+        public boolean evaluate(${TYPE_NAME}Context ctx) {
+            return left.evaluate(ctx) || right.evaluate(ctx);
+        }
+    }
+}

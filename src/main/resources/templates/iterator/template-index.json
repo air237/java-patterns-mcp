@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Iterator.java",  "template": "Iterator.java.template" },
+    { "fileName": "${TYPE_NAME}Aggregate.java", "template": "Aggregate.java.template" },
+    { "fileName": "${TYPE_NAME}Roster.java",    "template": "ConcreteAggregate.java.template" }
+  ]
+}

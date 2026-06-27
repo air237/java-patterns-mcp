@@ -1,0 +1,25 @@
+${PACKAGE_DECL}
+
+/**
+ * Context object — holds the per-instance <i>extrinsic</i> state
+ * ({@code x}, {@code y}) plus a reference to a shared
+ * {@link ${TYPE_NAME}Type}. Many ${TYPE_NAME}s can point at the same
+ * {@code ${TYPE_NAME}Type}; the type's intrinsic state is paid for
+ * exactly once per unique combination.
+ */
+public final class ${TYPE_NAME} {
+
+    private final int x;
+    private final int y;
+    private final ${TYPE_NAME}Type type;
+
+    public ${TYPE_NAME}(int x, int y, ${TYPE_NAME}Type type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+    }
+
+    public String render() {
+        return type.describe(x, y);
+    }
+}

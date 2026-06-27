@@ -64,7 +64,12 @@ public final class PatternDetectionEngine {
             new FacadeDetector(),
             new VisitorDetector(),
             new ChainOfResponsibilityDetector(),
-            new MediatorDetector()
+            new MediatorDetector(),
+            new PrototypeDetector(),
+            new FlyweightDetector(),
+            new InterpreterDetector(),
+            new IteratorDetector(),
+            new MementoDetector()
         );
     }
 

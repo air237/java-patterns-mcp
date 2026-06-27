@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",          "template": "Originator.java.template" },
+    { "fileName": "${TYPE_NAME}Memento.java",   "template": "Memento.java.template" },
+    { "fileName": "${TYPE_NAME}History.java",   "template": "Caretaker.java.template" }
+  ]
+}

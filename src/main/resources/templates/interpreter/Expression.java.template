@@ -1,0 +1,12 @@
+${PACKAGE_DECL}
+
+/**
+ * Interpreter contract — every node in the AST evaluates against a
+ * shared {@link ${TYPE_NAME}Context}. The result type ({@code boolean}
+ * here) is a placeholder — switch it to {@code int} / {@code String}
+ * / a custom result type for your grammar.
+ */
+public interface ${TYPE_NAME} {
+
+    boolean evaluate(${TYPE_NAME}Context ctx);
+}

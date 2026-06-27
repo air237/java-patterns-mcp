@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Type.java",     "template": "Flyweight.java.template" },
+    { "fileName": "${TYPE_NAME}TypeFactory.java", "template": "FlyweightFactory.java.template" },
+    { "fileName": "${TYPE_NAME}.java",         "template": "Context.java.template" }
+  ]
+}

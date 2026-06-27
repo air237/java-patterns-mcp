@@ -1,0 +1,26 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+/**
+ * Caretaker — stores mementos but never opens them. Provides a simple
+ * undo stack on top of the originator. The caretaker only knows that
+ * mementos exist; it never reads their contents.
+ */
+public final class ${TYPE_NAME}History {
+
+    private final Deque<${TYPE_NAME}Memento> stack = new ArrayDeque<>();
+
+    public void push(${TYPE_NAME}Memento m) {
+        stack.push(m);
+    }
+
+    public ${TYPE_NAME}Memento pop() {
+        return stack.pop();
+    }
+
+    public int size() {
+        return stack.size();
+    }
+}

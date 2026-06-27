@@ -1,0 +1,35 @@
+${PACKAGE_DECL}
+
+/**
+ * Originator — produces opaque snapshots of its own state via
+ * {@link #save()} and can be restored from one via
+ * {@link #restore(${TYPE_NAME}Memento)}. Only the originator can read
+ * the memento's contents (package-private field on the memento), so
+ * the caretaker stores it as a black box.
+ *
+ * <p>Replace the {@code text} field with the real state your
+ * originator carries. Classic uses: editor undo/redo, game-save
+ * snapshots, transactional rollback at object level.</p>
+ */
+public final class ${TYPE_NAME} {
+
+    private String text = "";
+
+    public ${TYPE_NAME} write(String fragment) {
+        this.text = this.text + fragment;
+        return this;
+    }
+
+    public String text() { return text; }
+
+    /** Capture a snapshot of the current state. */
+    public ${TYPE_NAME}Memento save() {
+        return new ${TYPE_NAME}Memento(text);
+    }
+
+    /** Restore from a snapshot — only the originator can interpret a memento. */
+    public ${TYPE_NAME} restore(${TYPE_NAME}Memento m) {
+        this.text = m.snapshot;
+        return this;
+    }
+}

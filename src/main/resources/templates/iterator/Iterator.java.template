@@ -1,0 +1,15 @@
+${PACKAGE_DECL}
+
+/**
+ * Custom iterator over {@code T} — mirrors the
+ * {@code java.util.Iterator} contract but kept separate so the pattern
+ * structure is explicit. In real code prefer
+ * {@code java.util.Iterator} unless you have a clear reason to roll
+ * your own.
+ */
+public interface ${TYPE_NAME}Iterator<T> {
+
+    boolean hasNext();
+
+    T next();
+}

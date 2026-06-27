@@ -20,28 +20,15 @@ class PatternDetectionEngineTest {
     private final PatternExamplesLoader examples = PatternExamplesLoader.getInstance();
 
     @Test
-    @DisplayName("engine reports the 18 supported patterns")
+    @DisplayName("engine reports all 23 GoF patterns supported (full coverage)")
     void supportedPatterns() {
-        assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
-            Pattern.SINGLETON,
-            Pattern.BUILDER,
-            Pattern.FACTORY_METHOD,
-            Pattern.STRATEGY,
-            Pattern.OBSERVER,
-            Pattern.COMPOSITE,
-            Pattern.ADAPTER,
-            Pattern.DECORATOR,
-            Pattern.PROXY,
-            Pattern.TEMPLATE_METHOD,
-            Pattern.STATE,
-            Pattern.COMMAND,
-            Pattern.ABSTRACT_FACTORY,
-            Pattern.BRIDGE,
-            Pattern.FACADE,
-            Pattern.VISITOR,
-            Pattern.CHAIN_OF_RESPONSIBILITY,
-            Pattern.MEDIATOR
-        );
+        // The engine covers every GoF pattern as of the Group-C milestone.
+        assertThat(engine.supportedPatterns()).hasSize(23);
+        for (Pattern p : Pattern.values()) {
+            assertThat(engine.supportedPatterns())
+                .as("pattern " + p + " must have a detector")
+                .contains(p);
+        }
     }
 
     @Test
@@ -471,6 +458,145 @@ class PatternDetectionEngineTest {
             .filter(h -> h.pattern() == Pattern.MEDIATOR)
             .findFirst().orElseThrow();
         assertThat(hit.className()).isEqualTo("ChatMediator");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Prototype is detected on a class with clone() + copy constructor")
+    void detectsPrototypeSnippet() {
+        String source = """
+            package demo;
+            public final class Circle {
+                private final int radius;
+                public Circle(int r) { this.radius = r; }
+                private Circle(Circle src) { this.radius = src.radius; }
+                public Circle clone() { return new Circle(this); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.PROTOTYPE)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Circle");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Flyweight is detected on a static Map cache with computeIfAbsent interning")
+    void detectsFlyweightSnippet() {
+        String source = """
+            package demo;
+            import java.util.HashMap;
+            import java.util.Map;
+            public final class TreeTypeFactory {
+                private static final Map<String, TreeType> CACHE = new HashMap<>();
+                public static TreeType get(String name, String texture) {
+                    return CACHE.computeIfAbsent(name + "|" + texture,
+                        k -> new TreeType(name, texture));
+                }
+            }
+            class TreeType {
+                final String name;
+                final String texture;
+                TreeType(String n, String t) { this.name = n; this.texture = t; }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.FLYWEIGHT)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("TreeTypeFactory");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Interpreter is detected on an expression interface with ≥3 concrete nodes")
+    void detectsInterpreterSnippet() {
+        String source = """
+            package demo;
+            import java.util.Map;
+            interface Expression {
+                boolean evaluate(Map<String, Boolean> ctx);
+            }
+            final class Variable implements Expression {
+                private final String name;
+                Variable(String n) { this.name = n; }
+                public boolean evaluate(Map<String, Boolean> ctx) { return ctx.get(name); }
+            }
+            final class And implements Expression {
+                private final Expression a, b;
+                And(Expression a, Expression b) { this.a = a; this.b = b; }
+                public boolean evaluate(Map<String, Boolean> ctx) { return a.evaluate(ctx) && b.evaluate(ctx); }
+            }
+            final class Or implements Expression {
+                private final Expression a, b;
+                Or(Expression a, Expression b) { this.a = a; this.b = b; }
+                public boolean evaluate(Map<String, Boolean> ctx) { return a.evaluate(ctx) || b.evaluate(ctx); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.INTERPRETER)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Expression");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Iterator is detected on a custom hasNext+next iterator paired with an aggregate")
+    void detectsIteratorSnippet() {
+        String source = """
+            package demo;
+            import java.util.ArrayList;
+            import java.util.List;
+            interface CustomIterator<T> {
+                boolean hasNext();
+                T next();
+            }
+            interface Aggregate<T> {
+                CustomIterator<T> iterator();
+            }
+            final class NameRoster implements Aggregate<String> {
+                private final List<String> names = new ArrayList<>();
+                public NameRoster add(String n) { names.add(n); return this; }
+                public CustomIterator<String> iterator() {
+                    return new CustomIterator<>() {
+                        int i = 0;
+                        public boolean hasNext() { return i < names.size(); }
+                        public String next() { return names.get(i++); }
+                    };
+                }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.ITERATOR)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Aggregate");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Memento is detected on an originator with save()+restore() methods")
+    void detectsMementoSnippet() {
+        String source = """
+            package demo;
+            public final class TextDocument {
+                private String text = "";
+                public TextDocument write(String s) { this.text = this.text + s; return this; }
+                public DocumentMemento save() { return new DocumentMemento(text); }
+                public TextDocument restore(DocumentMemento m) { this.text = m.snapshot; return this; }
+            }
+            final class DocumentMemento {
+                final String snapshot;
+                DocumentMemento(String s) { this.snapshot = s; }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.MEMENTO)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("TextDocument");
         assertThat(hit.confidence()).isEqualTo(1.0);
     }
 

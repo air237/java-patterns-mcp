@@ -1,0 +1,41 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+/**
+ * Concrete aggregate — a roster of strings. Exposes its iterator
+ * without revealing the underlying storage. The iterator itself is a
+ * private inner class so it has direct access to the backing list.
+ */
+public final class ${TYPE_NAME}Roster implements ${TYPE_NAME}Aggregate<String> {
+
+    private final List<String> items = new ArrayList<>();
+
+    public ${TYPE_NAME}Roster add(String item) {
+        items.add(item);
+        return this;
+    }
+
+    @Override
+    public ${TYPE_NAME}Iterator<String> iterator() {
+        return new RosterIterator();
+    }
+
+    /** Inner class — has private access to the backing list. */
+    private final class RosterIterator implements ${TYPE_NAME}Iterator<String> {
+        private int cursor = 0;
+
+        @Override
+        public boolean hasNext() {
+            return cursor < items.size();
+        }
+
+        @Override
+        public String next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            return items.get(cursor++);
+        }
+    }
+}

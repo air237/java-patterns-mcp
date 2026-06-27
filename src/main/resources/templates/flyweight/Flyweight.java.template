@@ -1,0 +1,31 @@
+${PACKAGE_DECL}
+
+/**
+ * Flyweight — the shared, immutable <i>intrinsic</i> state of a
+ * {@code ${TYPE_NAME}}. Many context objects can point at the same
+ * {@code ${TYPE_NAME}Type} instance.
+ *
+ * <p>One million logical {@code ${TYPE_NAME}}s referencing a handful of
+ * unique {@code ${TYPE_NAME}Type}s cost a fraction of one million
+ * full copies. The factory ({@link ${TYPE_NAME}TypeFactory}) makes
+ * sure equal-keyed types are interned and never created twice.</p>
+ */
+public final class ${TYPE_NAME}Type {
+
+    private final String name;
+    private final String texture;
+    private final String color;
+
+    /** Package-private — only {@link ${TYPE_NAME}TypeFactory} creates these. */
+    ${TYPE_NAME}Type(String name, String texture, String color) {
+        this.name = name;
+        this.texture = texture;
+        this.color = color;
+    }
+
+    public String describe(int x, int y) {
+        return name + "@(" + x + "," + y + ") [" + color + ", " + texture + "]";
+    }
+
+    public String name() { return name; }
+}
