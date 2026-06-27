@@ -1,0 +1,20 @@
+${PACKAGE_DECL}
+
+/**
+ * Service contract — implemented by both the real subject and the
+ * proxy so clients can swap them transparently.
+ *
+ * <p>The Proxy pattern lets you control access to an object without
+ * changing its callers. Common variants:</p>
+ * <ul>
+ *   <li><b>Caching proxy</b> — memoise expensive results (this template).</li>
+ *   <li><b>Virtual proxy</b> — lazy-load the real subject on first use.</li>
+ *   <li><b>Protection proxy</b> — enforce authorisation before delegating.</li>
+ *   <li><b>Remote proxy</b> — marshal calls to a network endpoint.</li>
+ * </ul>
+ */
+public interface ${TYPE_NAME} {
+
+    /** The single operation the service exposes. Replace with your own. */
+    String request(String input);
+}

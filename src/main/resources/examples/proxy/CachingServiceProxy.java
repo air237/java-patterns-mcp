@@ -2,6 +2,7 @@ package com.javapatterns.examples.proxy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Caching proxy. Implements the same {@link Service} interface but holds
@@ -13,7 +14,7 @@ public final class CachingServiceProxy implements Service {
     private final Map<String, String> cache = new HashMap<>();
 
     public CachingServiceProxy(Service delegate) {
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

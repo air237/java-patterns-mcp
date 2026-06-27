@@ -14,13 +14,13 @@ class PatternValidationEngineTest {
     private final PatternValidationEngine engine = PatternValidationEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports the 10 wired validators")
+    @DisplayName("engine reports the 12 wired validators")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
             Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER,
             Pattern.STRATEGY, Pattern.FACTORY_METHOD, Pattern.ADAPTER,
             Pattern.TEMPLATE_METHOD, Pattern.DECORATOR, Pattern.STATE,
-            Pattern.COMMAND);
+            Pattern.COMMAND, Pattern.COMPOSITE, Pattern.PROXY);
     }
 
     // ─── Singleton ─────────────────────────────────────────────────
@@ -808,5 +808,217 @@ class PatternValidationEngineTest {
             assertThat(i.severity()).isEqualTo(Severity.INFO);
             assertThat(i.issue()).containsIgnoringCase("undo");
         });
+    }
+
+    // ─── Composite ─────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Composite example yields no ERROR or WARNING")
+    void bundledCompositeHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.COMPOSITE)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.COMPOSITE);
+            assertThat(issues)
+                .as("bundled Composite example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Composite with a non-final children field is ERROR")
+    void nonFinalChildrenIsError() {
+        String source = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public interface Component { double cost(); }
+            public final class Product implements Component {
+                private final double price;
+                public Product(double p) { this.price = p; }
+                public double cost() { return price; }
+            }
+            public final class Box implements Component {
+                private List<Component> children = new ArrayList<>();
+                public Box add(Component c) { children.add(c); return this; }
+                public List<Component> children() { return List.copyOf(children); }
+                public double cost() {
+                    double s = 0; for (Component c : children) s += c.cost(); return s;
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMPOSITE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Composite that returns the live children list is ERROR")
+    void liveChildrenGetterIsError() {
+        String source = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public interface Component { double cost(); }
+            public final class Product implements Component {
+                private final double price;
+                public Product(double p) { this.price = p; }
+                public double cost() { return price; }
+            }
+            public final class Box implements Component {
+                private final List<Component> children = new ArrayList<>();
+                public Box add(Component c) {
+                    java.util.Objects.requireNonNull(c, "c");
+                    children.add(c); return this;
+                }
+                public List<Component> children() { return children; }  // LIVE!
+                public double cost() {
+                    double s = 0; for (Component c : children) s += c.cost(); return s;
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMPOSITE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("live");
+        });
+    }
+
+    @Test
+    @DisplayName("Composite add() without null-check is WARNING")
+    void compositeAddWithoutNullCheckIsWarning() {
+        String source = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public interface Component { double cost(); }
+            public final class Product implements Component {
+                private final double price;
+                public Product(double p) { this.price = p; }
+                public double cost() { return price; }
+            }
+            public final class Box implements Component {
+                private final List<Component> children = new ArrayList<>();
+                public Box add(Component c) { children.add(c); return this; }
+                public List<Component> children() { return List.copyOf(children); }
+                public double cost() {
+                    double s = 0; for (Component c : children) s += c.cost(); return s;
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMPOSITE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("null-check");
+        });
+    }
+
+    @Test
+    @DisplayName("Composite without a leaf class is INFO")
+    void compositeWithoutLeafIsInfo() {
+        String source = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public interface Component { double cost(); }
+            public final class Box implements Component {
+                private final List<Component> children = new ArrayList<>();
+                public Box add(Component c) {
+                    java.util.Objects.requireNonNull(c, "c");
+                    children.add(c); return this;
+                }
+                public List<Component> children() { return List.copyOf(children); }
+                public double cost() {
+                    double s = 0; for (Component c : children) s += c.cost(); return s;
+                }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.COMPOSITE);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.INFO);
+            assertThat(i.issue()).containsIgnoringCase("no leaf");
+        });
+    }
+
+    // ─── Proxy ─────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Proxy example yields no ERROR or WARNING")
+    void bundledProxyHasNoSeriousIssues() {
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.PROXY)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.PROXY);
+            assertThat(issues)
+                .as("bundled Proxy example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Proxy with a non-final delegate field is ERROR")
+    void nonFinalDelegateIsError() {
+        String source = """
+            public interface Service { String request(String k); }
+            public final class CachingServiceProxy implements Service {
+                private Service delegate;
+                public CachingServiceProxy(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.PROXY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Proxy that never delegates is ERROR")
+    void proxyWithoutDelegationIsError() {
+        String source = """
+            public interface Service { String request(String k); }
+            public final class FakeServiceProxy implements Service {
+                private final Service delegate;
+                public FakeServiceProxy(Service d) { this.delegate = java.util.Objects.requireNonNull(d); }
+                public String request(String k) { return "hardcoded"; }  // never calls delegate
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.PROXY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("does not proxy");
+        });
+    }
+
+    @Test
+    @DisplayName("Proxy constructor without null-check is WARNING")
+    void proxyWithoutNullCheckIsWarning() {
+        String source = """
+            public interface Service { String request(String k); }
+            public final class CachingServiceProxy implements Service {
+                private final Service delegate;
+                public CachingServiceProxy(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.PROXY);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("null-check");
+        });
+    }
+
+    @Test
+    @DisplayName("Proxy without a name hint is silently ignored (Decorator's territory)")
+    void proxyWithoutHintIsIgnored() {
+        String source = """
+            public interface Service { String request(String k); }
+            public final class SomeServiceImpl implements Service {  // no Proxy/Cache/... hint
+                private Service delegate;
+                public SomeServiceImpl(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.PROXY);
+        assertThat(issues)
+            .as("class with no proxy hint should not trigger ProxyValidator: " + issues)
+            .isEmpty();
     }
 }

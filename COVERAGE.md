@@ -48,10 +48,12 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | State | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
 | Command | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
 | Adapter | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
-| Composite | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
-| Proxy | ✅ | ⛔ | ✅ | ⛔ | ⛔ |
+| Composite | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
+| Proxy | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
 | Template Method | ✅ | ✅ | ✅ | ✅ | ✅ (1) |
-| **Group A subtotals** | **12/12** | **10/12** | **12/12** | **10/12** | **10 patterns / 12 refactorings** |
+| **Group A subtotals** | **12/12** | **12/12** | **12/12** | **12/12** | **12 patterns / 14 refactorings** |
+
+> **🎉 Group A is now 12/12 — full 4-tool coverage on every pattern.**
 
 ### B — `generate` + `detect` target
 
@@ -83,10 +85,10 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | Tool | Implemented | Out of 23 | % | Source of truth |
 |---|---:|---:|---:|---|
 | `pattern_examples` | 23 | 23 | 100% | `src/main/resources/examples/<slug>/` directories |
-| `generate_pattern` | 10 | 23 | 43% | `PatternGenerator.SUPPORTED` |
+| `generate_pattern` | 12 | 23 | 52% | `PatternGenerator.SUPPORTED` |
 | `detect_pattern` | 12 | 23 | 52% | `PatternDetectionEngine` detectors list |
-| `validate_pattern` | 10 | 23 | 43% | `PatternValidationEngine` validators list |
-| `refactor_to_pattern` | 12 refactorings on 10 patterns | – | – | `RefactoringId` enum |
+| `validate_pattern` | 12 | 23 | 52% | `PatternValidationEngine` validators list |
+| `refactor_to_pattern` | 14 refactorings on 12 patterns | – | – | `RefactoringId` enum |
 
 ---
 
@@ -110,22 +112,36 @@ pass to the MCP tool.
 | `decorator-make-wrapped-final` | Decorator | Mark the wrapped (delegate) field of a Decorator-shaped class as `final`. |
 | `state-make-implementations-final` | State | Mark every concrete implementor of a State hierarchy as `final`. |
 | `command-make-implementations-final` | Command | Mark every concrete implementor of a Command contract as `final`. |
+| `composite-make-children-final` | Composite | Mark the children collection field of a Composite-shaped class as `final`. |
+| `proxy-make-subject-final` | Proxy | Mark the delegate (real-subject) field of a Proxy-shaped class as `final`. |
 
 ---
 
-## Roadmap: what's next for Group A
+## Roadmap
 
-The 12 Group-A patterns are the priority target. Concrete gaps:
+### ✅ Group A — complete (12/12)
 
-### 2 missing `generate` templates
-Composite · Proxy
+All twelve Group-A patterns now have full 4-tool coverage:
+generate + detect + validate + refactor, alongside the
+universal pattern_examples support. Run the engine sanity
+tests (`PatternValidationEngineTest.supportedPatterns`,
+`PatternRefactoringEngineTest.supported`,
+`PatternDetectionEngineTest.supportedPatterns`,
+`PatternGenerator.SUPPORTED`) to confirm the registrations
+stay in sync.
 
-### 2 missing `validate` validators
-Composite · Proxy
+### Group B — gaps remaining
+Generate + detect would be useful but `validate` and `refactor`
+are intentionally out of scope for this group (see the
+"Strategic grouping" section at the top of this file).
 
-### 2 patterns without any `refactor` recipe
-Composite · Proxy
-(10 patterns now have ≥1 refactoring: Singleton, Builder, Observer, Adapter, Template Method, Factory Method, Strategy, Decorator, State, Command. Composite and Proxy are the last two Group-A patterns missing all three tools — generate template + validator + refactoring.)
+* Missing generate templates: Abstract Factory · Bridge · Facade ·
+  Visitor · Chain of Responsibility · Mediator
+* Missing detectors: same six patterns
+
+### Group C — examples-only as intended
+Prototype · Flyweight · Interpreter · Iterator · Memento all ship
+canonical example sources and intentionally nothing else.
 
 ### Per-pattern benchmark
 
@@ -135,15 +151,12 @@ Composite · Proxy
 | Template Method | June 2026 | ~410 | 5 | 9 | Educational follow-up: shows what Template Method IS (inheritance + abstract hooks) and what it is NOT (lambda-strategy). Caught the EJ-19 "constructor calls overridable method" anti-pattern. |
 | Factory Method + Strategy | June 2026 | ~320 | 2 (refactorings) | 10 | Refactor-only round: closed the last two "validator without refactor" gaps with two atomic recipes (`factory-method-restrict-creator-ctor`, `strategy-add-functional-interface`). |
 | Decorator + State + Command | June 2026 | ~1140 | 6 (3 validators + 3 refactorings) | 22 | Validate + refactor double round for the three patterns that had detect + generate already. Validators each fire only on detector-shaped classes (zero false positives on the bundled canonical examples). Refactorings are all atomic "promote to final" modifier flips. |
+| Composite + Proxy | June 2026 | ~1090 | 10 (2 generate template sets + 2 validators + 2 refactorings) | 17 | Final full-rollout round that closed Group A. Composite adds a "children getter returns live collection" ERROR — a substantive structural rule, not just a modifier check. Proxy distinguishes itself from Decorator by name-hint heuristic (proxy / cache / lazy / auth / remote / …) so the validator stays out of Decorator's lane. |
 
-Group-A patterns with full 4-tool coverage as of this commit: 10
-out of 12 — only Composite and Proxy remain, each needing all
-three of generate + validate + refactor.
-
-Extrapolated to the remaining 2 Group-A patterns: roughly
-800-1000 LOC of new code, ~3-4 hours of work, to bring Group A
-to 12/12 full coverage. The total Group-A rollout so far has
-cost ~2350 LOC across 5 milestones.
+**Group-A total cost** (across 5 milestones): ~3440 LOC of new
+code, ~70 new tests. The average full-pattern rollout cost
+~480 LOC; refactor-only follow-ups are ~3x cheaper at ~160 LOC
+per pattern.
 
 ---
 

@@ -10,7 +10,7 @@ class PatternRefactoringEngineTest {
     private final PatternRefactoringEngine engine = PatternRefactoringEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports all 12 wired refactorings")
+    @DisplayName("engine reports all 14 wired refactorings")
     void supported() {
         assertThat(engine.supported()).containsExactlyInAnyOrder(
             RefactoringId.SINGLETON_MAKE_CTOR_PRIVATE,
@@ -24,7 +24,9 @@ class PatternRefactoringEngineTest {
             RefactoringId.STRATEGY_ADD_FUNCTIONAL_INTERFACE,
             RefactoringId.DECORATOR_MAKE_WRAPPED_FINAL,
             RefactoringId.STATE_MAKE_IMPLEMENTATIONS_FINAL,
-            RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL
+            RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL,
+            RefactoringId.COMPOSITE_MAKE_CHILDREN_FINAL,
+            RefactoringId.PROXY_MAKE_SUBJECT_FINAL
         );
     }
 
@@ -622,6 +624,132 @@ class PatternRefactoringEngineTest {
             """;
         RefactoringResult r = engine.apply(src, RefactoringId.COMMAND_MAKE_IMPLEMENTATIONS_FINAL);
         assertThat(r.changed()).isFalse();
+    }
+
+    // ─── Composite: make children final ────────────────────────────
+
+    @Test
+    @DisplayName("composite-make-children-final promotes a non-final children field")
+    void compositeMakeChildrenFinal_promotes() {
+        String src = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public interface Component { double cost(); }
+            public final class Product implements Component {
+                private final double price;
+                public Product(double p) { this.price = p; }
+                public double cost() { return price; }
+            }
+            public final class Box implements Component {
+                private List<Component> children = new ArrayList<>();
+                public Box add(Component c) { children.add(c); return this; }
+                public double cost() {
+                    double s = 0; for (Component c : children) s += c.cost(); return s;
+                }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.COMPOSITE_MAKE_CHILDREN_FINAL);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("private final List<Component> children");
+        assertThat(r.changes()).anyMatch(s -> s.contains("Box") && s.contains("children") && s.contains("final"));
+    }
+
+    @Test
+    @DisplayName("composite-make-children-final is idempotent on already-final children")
+    void compositeMakeChildrenFinal_idempotent() {
+        String src = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public interface Component { double cost(); }
+            public final class Box implements Component {
+                private final List<Component> children = new ArrayList<>();
+                public Box add(Component c) { children.add(c); return this; }
+                public double cost() { return 0; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.COMPOSITE_MAKE_CHILDREN_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("composite-make-children-final ignores files without a component interface")
+    void compositeMakeChildrenFinal_ignoresNonComposite() {
+        String src = """
+            import java.util.ArrayList;
+            import java.util.List;
+            public class JustAList {
+                private List<String> items = new ArrayList<>();
+                public void add(String s) { items.add(s); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.COMPOSITE_MAKE_CHILDREN_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    // ─── Proxy: make subject final ─────────────────────────────────
+
+    @Test
+    @DisplayName("proxy-make-subject-final promotes a non-final delegate field on a hinted-name class")
+    void proxyMakeSubjectFinal_promotes() {
+        String src = """
+            public interface Service { String request(String k); }
+            public final class CachingServiceProxy implements Service {
+                private Service delegate;
+                public CachingServiceProxy(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.PROXY_MAKE_SUBJECT_FINAL);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("private final Service delegate");
+        assertThat(r.changes()).anyMatch(s -> s.contains("CachingServiceProxy") && s.contains("final"));
+    }
+
+    @Test
+    @DisplayName("proxy-make-subject-final is idempotent on already-final delegate")
+    void proxyMakeSubjectFinal_idempotent() {
+        String src = """
+            public interface Service { String request(String k); }
+            public final class CachingServiceProxy implements Service {
+                private final Service delegate;
+                public CachingServiceProxy(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.PROXY_MAKE_SUBJECT_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("proxy-make-subject-final ignores classes without a proxy-hint name")
+    void proxyMakeSubjectFinal_ignoresUnhintedClasses() {
+        String src = """
+            public interface Service { String request(String k); }
+            public final class SomeServiceImpl implements Service {
+                private Service delegate;
+                public SomeServiceImpl(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.PROXY_MAKE_SUBJECT_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("proxy-make-subject-final defers Decorator-named classes")
+    void proxyMakeSubjectFinal_defersDecoratorNames() {
+        String src = """
+            public interface Service { String request(String k); }
+            public final class LoggingServiceDecorator implements Service {
+                private Service delegate;
+                public LoggingServiceDecorator(Service d) { this.delegate = d; }
+                public String request(String k) { return delegate.request(k); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.PROXY_MAKE_SUBJECT_FINAL);
+        assertThat(r.changed())
+            .as("Decorator-named classes belong to decorator-make-wrapped-final, not Proxy")
+            .isFalse();
     }
 
     // ─── error paths ───────────────────────────────────────────────

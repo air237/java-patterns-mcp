@@ -1,0 +1,42 @@
+${PACKAGE_DECL}
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * Caching proxy — implements {@link ${TYPE_NAME}} and forwards to the
+ * real subject only on cache miss. Subsequent calls with the same key
+ * return the memoised result without touching the real subject.
+ *
+ * <p>The {@code delegate} field is {@code final}: a proxy must hold
+ * one fixed real subject for its entire lifetime. The constructor
+ * eagerly null-checks the delegate so a misconfigured proxy fails
+ * loudly at construction instead of silently NPE-ing at the first
+ * request.</p>
+ */
+public final class Caching${TYPE_NAME}Proxy implements ${TYPE_NAME} {
+
+    private final ${TYPE_NAME} delegate;
+    private final Map<String, String> cache = new HashMap<>();
+
+    public Caching${TYPE_NAME}Proxy(${TYPE_NAME} delegate) {
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+    }
+
+    @Override
+    public String request(String input) {
+        String hit = cache.get(input);
+        if (hit != null) {
+            return "[cache] " + hit;
+        }
+        String fresh = delegate.request(input);
+        cache.put(input, fresh);
+        return fresh;
+    }
+
+    /** Convenience accessor — exposes the cache size for diagnostics. */
+    public int cachedKeys() {
+        return cache.size();
+    }
+}

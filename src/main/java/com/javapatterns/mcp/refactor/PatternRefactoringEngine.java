@@ -45,6 +45,8 @@ public final class PatternRefactoringEngine {
         register(new DecoratorMakeWrappedFinal());
         register(new StateMakeImplementationsFinal());
         register(new CommandMakeImplementationsFinal());
+        register(new CompositeMakeChildrenFinal());
+        register(new ProxyMakeSubjectFinal());
     }
 
     private void register(PatternRefactoring r) {

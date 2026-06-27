@@ -1,0 +1,23 @@
+${PACKAGE_DECL}
+
+/**
+ * Component contract for the {@code ${TYPE_NAME}} hierarchy.
+ *
+ * <p>Both {@link ${TYPE_NAME}Leaf} (single elements) and
+ * {@link ${TYPE_NAME}Group} (collections of children, possibly nested)
+ * implement this interface. Clients can recurse through the structure
+ * without ever asking "is this a leaf or a composite?".</p>
+ *
+ * <p>This is the classic <i>transparency</i> form of the Composite
+ * pattern — the interface intentionally does NOT declare
+ * {@code add(child)} / {@code remove(child)} so a client cannot try
+ * to add a child to a leaf at compile time. If you need the
+ * "safety" form instead, move child management onto
+ * {@link ${TYPE_NAME}Group} only (which is what this template
+ * already does).</p>
+ */
+public interface ${TYPE_NAME} {
+
+    /** A single aggregable measurement — extend / replace as needed. */
+    double measure();
+}

@@ -43,7 +43,9 @@ public final class PatternValidationEngine {
             new TemplateMethodValidator(),
             new DecoratorValidator(),
             new StateValidator(),
-            new CommandValidator()
+            new CommandValidator(),
+            new CompositeValidator(),
+            new ProxyValidator()
         );
     }
 

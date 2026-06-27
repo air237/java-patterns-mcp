@@ -1,0 +1,40 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Composite — a {@link ${TYPE_NAME}} that aggregates a list of child
+ * {@link ${TYPE_NAME}} instances. Children can themselves be groups,
+ * giving arbitrary nesting. {@link #measure()} recurses through the
+ * children and sums their measurements.
+ *
+ * <p>The {@code children} field is {@code final} so the backing list
+ * is never reassigned. {@link #children()} returns a defensive copy
+ * to prevent callers from mutating the composite's internal state.</p>
+ */
+public final class ${TYPE_NAME}Group implements ${TYPE_NAME} {
+
+    private final List<${TYPE_NAME}> children = new ArrayList<>();
+
+    /** Append a child. Returns {@code this} for fluent chaining. */
+    public ${TYPE_NAME}Group add(${TYPE_NAME} child) {
+        children.add(Objects.requireNonNull(child, "child"));
+        return this;
+    }
+
+    /** Defensive snapshot — callers cannot mutate the group through it. */
+    public List<${TYPE_NAME}> children() {
+        return List.copyOf(children);
+    }
+
+    @Override
+    public double measure() {
+        double sum = 0.0;
+        for (${TYPE_NAME} c : children) {
+            sum += c.measure();
+        }
+        return sum;
+    }
+}

@@ -1,0 +1,18 @@
+${PACKAGE_DECL}
+
+/**
+ * Real subject — the actual implementation of {@link ${TYPE_NAME}}.
+ *
+ * <p>In a real codebase this is the class whose calls are expensive
+ * (remote HTTP, large DB query, heavyweight computation) or
+ * security-sensitive — the reasons proxying it is worthwhile in the
+ * first place.</p>
+ */
+public final class Real${TYPE_NAME} implements ${TYPE_NAME} {
+
+    @Override
+    public String request(String input) {
+        // Pretend this is an expensive call (remote API / heavy compute).
+        return "real(" + input + ")=" + (input == null ? 0 : input.hashCode());
+    }
+}

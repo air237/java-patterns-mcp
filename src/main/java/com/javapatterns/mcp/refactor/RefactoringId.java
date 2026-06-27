@@ -47,7 +47,13 @@ public enum RefactoringId {
         "Mark every concrete implementor of a State hierarchy as final."),
     COMMAND_MAKE_IMPLEMENTATIONS_FINAL(
         Pattern.COMMAND, "command-make-implementations-final",
-        "Mark every concrete implementor of a Command contract as final.");
+        "Mark every concrete implementor of a Command contract as final."),
+    COMPOSITE_MAKE_CHILDREN_FINAL(
+        Pattern.COMPOSITE, "composite-make-children-final",
+        "Mark the children collection field of a Composite-shaped class as final."),
+    PROXY_MAKE_SUBJECT_FINAL(
+        Pattern.PROXY, "proxy-make-subject-final",
+        "Mark the delegate (real-subject) field of a Proxy-shaped class as final.");
 
     private final Pattern pattern;
     private final String slug;

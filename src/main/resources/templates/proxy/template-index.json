@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",         "template": "Service.java.template" },
+    { "fileName": "Real${TYPE_NAME}.java",     "template": "RealSubject.java.template" },
+    { "fileName": "Caching${TYPE_NAME}Proxy.java", "template": "Proxy.java.template" }
+  ]
+}

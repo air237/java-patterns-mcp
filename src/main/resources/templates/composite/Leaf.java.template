@@ -1,0 +1,29 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Leaf — a single, indivisible {@link ${TYPE_NAME}} with its own value.
+ *
+ * <p>Leaves have no children, so {@link #measure()} simply returns
+ * the stored value. Adding child management here would defeat the
+ * point of Composite — clients should treat leaves and composites
+ * the same way.</p>
+ */
+public final class ${TYPE_NAME}Leaf implements ${TYPE_NAME} {
+
+    private final String name;
+    private final double value;
+
+    public ${TYPE_NAME}Leaf(String name, double value) {
+        this.name = Objects.requireNonNull(name, "name");
+        this.value = value;
+    }
+
+    public String name() { return name; }
+
+    @Override
+    public double measure() {
+        return value;
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",      "template": "Component.java.template" },
+    { "fileName": "${TYPE_NAME}Leaf.java",  "template": "Leaf.java.template" },
+    { "fileName": "${TYPE_NAME}Group.java", "template": "Composite.java.template" }
+  ]
+}
