@@ -1,0 +1,19 @@
+${PACKAGE_DECL}
+
+/**
+ * Adaptee — an existing class with a useful implementation but an
+ * incompatible API (different method names / signatures from
+ * {@link ${TYPE_NAME}}).
+ *
+ * <p>Typical real-world cases: a third-party library, a legacy module,
+ * or a class generated from an external schema. We cannot change its
+ * source, so an adapter is the bridge.</p>
+ */
+public final class Legacy${TYPE_NAME} {
+
+    /** The existing operation — same intent as {@code ${TYPE_NAME}#request()}
+     *  but a different name. */
+    public String specificRequest() {
+        return "legacy result";
+    }
+}

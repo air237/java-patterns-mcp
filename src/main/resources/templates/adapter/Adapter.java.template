@@ -1,0 +1,27 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Adapter — implements the {@link ${TYPE_NAME}} surface the client wants,
+ * forwards every call to the wrapped {@link Legacy${TYPE_NAME}}.
+ *
+ * <p>This is the <i>object adapter</i> variant (composition, not
+ * inheritance) — preferred in modern Java because it can adapt
+ * <i>any</i> subtype of the adaptee and does not collide with the
+ * adaptee's own inheritance chain.</p>
+ */
+public final class ${TYPE_NAME}Adapter implements ${TYPE_NAME} {
+
+    private final Legacy${TYPE_NAME} adaptee;
+
+    public ${TYPE_NAME}Adapter(Legacy${TYPE_NAME} adaptee) {
+        this.adaptee = Objects.requireNonNull(adaptee, "adaptee");
+    }
+
+    @Override
+    public String request() {
+        // Translate / forward.
+        return adaptee.specificRequest();
+    }
+}

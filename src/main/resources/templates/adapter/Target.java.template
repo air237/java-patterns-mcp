@@ -1,0 +1,14 @@
+${PACKAGE_DECL}
+
+/**
+ * Target interface — the API the client expects to talk to.
+ *
+ * <p>Concrete {@code ${TYPE_NAME}} implementations expose this surface
+ * directly. The {@link ${TYPE_NAME}Adapter} wraps a {@link Legacy${TYPE_NAME}}
+ * (which has a different API) and presents it as a {@code ${TYPE_NAME}}.</p>
+ */
+public interface ${TYPE_NAME} {
+
+    /** Domain-specific request the client wants to make. */
+    String request();
+}

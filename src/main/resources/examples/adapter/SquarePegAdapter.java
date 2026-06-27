@@ -1,5 +1,7 @@
 package com.javapatterns.examples.adapter;
 
+import java.util.Objects;
+
 /**
  * The Adapter — exposes a {@link RoundPeg} surface while delegating to a
  * wrapped {@link SquarePeg}.
@@ -14,7 +16,7 @@ public final class SquarePegAdapter extends RoundPeg {
 
     public SquarePegAdapter(SquarePeg square) {
         super(0); // unused: we override getRadius() below
-        this.square = square;
+        this.square = Objects.requireNonNull(square, "square");
     }
 
     @Override

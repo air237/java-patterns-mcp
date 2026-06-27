@@ -38,6 +38,7 @@ public final class PatternRefactoringEngine {
         register(new SingletonAddReadResolve());
         register(new BuilderMakeFieldsFinal());
         register(new ObserverSnapshotIteration());
+        register(new AdapterMakeAdapteeFinal());
     }
 
     private void register(PatternRefactoring r) {

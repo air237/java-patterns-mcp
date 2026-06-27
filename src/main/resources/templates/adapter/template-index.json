@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",         "template": "Target.java.template" },
+    { "fileName": "Legacy${TYPE_NAME}.java",   "template": "Adaptee.java.template" },
+    { "fileName": "${TYPE_NAME}Adapter.java",  "template": "Adapter.java.template" }
+  ]
+}

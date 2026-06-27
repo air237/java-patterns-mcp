@@ -24,7 +24,10 @@ public enum RefactoringId {
         "Mark every non-final instance field of the Builder's outer class as final."),
     OBSERVER_SNAPSHOT_ITERATION(
         Pattern.OBSERVER, "observer-snapshot-iteration",
-        "Wrap the iterated collection inside a publish-like method with List.copyOf(...).");
+        "Wrap the iterated collection inside a publish-like method with List.copyOf(...)."),
+    ADAPTER_MAKE_ADAPTEE_FINAL(
+        Pattern.ADAPTER, "adapter-make-adaptee-final",
+        "Mark the adaptee field of an Adapter-shaped class as final.");
 
     private final Pattern pattern;
     private final String slug;

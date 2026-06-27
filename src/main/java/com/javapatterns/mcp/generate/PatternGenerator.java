@@ -43,7 +43,8 @@ public final class PatternGenerator {
         Pattern.OBSERVER,
         Pattern.DECORATOR,
         Pattern.STATE,
-        Pattern.COMMAND
+        Pattern.COMMAND,
+        Pattern.ADAPTER
     );
 
     /** Singleton instance — templates are loaded lazily on first use. */

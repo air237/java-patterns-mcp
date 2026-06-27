@@ -10,14 +10,15 @@ class PatternRefactoringEngineTest {
     private final PatternRefactoringEngine engine = PatternRefactoringEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports all 5 wired refactorings")
+    @DisplayName("engine reports all 6 wired refactorings")
     void supported() {
         assertThat(engine.supported()).containsExactlyInAnyOrder(
             RefactoringId.SINGLETON_MAKE_CTOR_PRIVATE,
             RefactoringId.SINGLETON_ADD_HOLDER_IDIOM,
             RefactoringId.SINGLETON_ADD_READ_RESOLVE,
             RefactoringId.BUILDER_MAKE_FIELDS_FINAL,
-            RefactoringId.OBSERVER_SNAPSHOT_ITERATION
+            RefactoringId.OBSERVER_SNAPSHOT_ITERATION,
+            RefactoringId.ADAPTER_MAKE_ADAPTEE_FINAL
         );
     }
 
@@ -219,6 +220,55 @@ class PatternRefactoringEngineTest {
             }
             """;
         RefactoringResult r = engine.apply(src, RefactoringId.OBSERVER_SNAPSHOT_ITERATION);
+        assertThat(r.changed()).isFalse();
+    }
+
+    // ─── Adapter: make adaptee final ───────────────────────────────
+
+    @Test
+    @DisplayName("adapter-make-adaptee-final promotes a non-final adaptee field")
+    void adapterMakeAdapteeFinal_promotes() {
+        String src = """
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class BadAdapter implements Target {
+                private Legacy adaptee;
+                public BadAdapter(Legacy a) { this.adaptee = a; }
+                public String request() { return adaptee.specificRequest(); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.ADAPTER_MAKE_ADAPTEE_FINAL);
+        assertThat(r.changed()).isTrue();
+        assertThat(r.newSource()).contains("private final Legacy adaptee");
+        assertThat(r.changes()).anyMatch(s -> s.contains("adaptee") && s.contains("final"));
+    }
+
+    @Test
+    @DisplayName("adapter-make-adaptee-final is idempotent on already-final adaptee")
+    void adapterMakeAdapteeFinal_idempotent() {
+        String src = """
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class CleanAdapter implements Target {
+                private final Legacy adaptee;
+                public CleanAdapter(Legacy a) { this.adaptee = a; }
+                public String request() { return adaptee.specificRequest(); }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.ADAPTER_MAKE_ADAPTEE_FINAL);
+        assertThat(r.changed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("adapter-make-adaptee-final ignores plain classes (no target type)")
+    void adapterMakeAdapteeFinal_ignoresPlainClasses() {
+        String src = """
+            public class PlainPojo {
+                private String name;
+                public PlainPojo(String n) { this.name = n; }
+            }
+            """;
+        RefactoringResult r = engine.apply(src, RefactoringId.ADAPTER_MAKE_ADAPTEE_FINAL);
         assertThat(r.changed()).isFalse();
     }
 

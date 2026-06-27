@@ -14,11 +14,11 @@ class PatternValidationEngineTest {
     private final PatternValidationEngine engine = PatternValidationEngine.getInstance();
 
     @Test
-    @DisplayName("engine reports the 5 wired validators")
+    @DisplayName("engine reports the 6 wired validators")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
             Pattern.SINGLETON, Pattern.BUILDER, Pattern.OBSERVER,
-            Pattern.STRATEGY, Pattern.FACTORY_METHOD);
+            Pattern.STRATEGY, Pattern.FACTORY_METHOD, Pattern.ADAPTER);
     }
 
     // ─── Singleton ─────────────────────────────────────────────────
@@ -342,5 +342,116 @@ class PatternValidationEngineTest {
         } catch (PatternValidationEngine.ValidationException e) {
             assertThat(e.getMessage()).containsIgnoringCase("parse");
         }
+    }
+
+    // ─── Adapter ───────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("the bundled Adapter example yields no ERROR or WARNING")
+    void bundledAdapterHasNoSeriousIssues() {
+        // The bundled example is a class adapter (SquarePegAdapter extends RoundPeg),
+        // so we expect an INFO note about class-adapter, but no ERROR/WARNING.
+        for (var ex : PatternExamplesLoader.getInstance().forPattern(Pattern.ADAPTER)) {
+            List<ValidationIssue> issues = engine.validateOne(ex.source(), Pattern.ADAPTER);
+            assertThat(issues)
+                .as("bundled Adapter example " + ex.fileName() + ": " + issues)
+                .filteredOn(i -> i.severity() != Severity.INFO)
+                .isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Adapter with a non-final adaptee field is ERROR")
+    void nonFinalAdapteeIsError() {
+        String source = """
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class BadAdapter implements Target {
+                private Legacy adaptee;
+                public BadAdapter(Legacy a) { this.adaptee = a; }
+                public String request() { return adaptee.specificRequest(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ADAPTER);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("not final");
+        });
+    }
+
+    @Test
+    @DisplayName("Adapter that never forwards to the adaptee is ERROR")
+    void adapterThatDoesNotForwardIsError() {
+        String source = """
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class FakeAdapter implements Target {
+                private final Legacy adaptee;
+                public FakeAdapter(Legacy a) { this.adaptee = a; }
+                public String request() { return "hardcoded"; }   // never calls adaptee
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ADAPTER);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.ERROR);
+            assertThat(i.issue()).containsIgnoringCase("does not actually adapt");
+        });
+    }
+
+    @Test
+    @DisplayName("Adapter constructor without null-check is WARNING")
+    void adapterWithoutNullCheckIsWarning() {
+        String source = """
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class SloppyAdapter implements Target {
+                private final Legacy adaptee;
+                public SloppyAdapter(Legacy a) { this.adaptee = a; }
+                public String request() { return adaptee.specificRequest(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ADAPTER);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.WARNING);
+            assertThat(i.issue()).containsIgnoringCase("null-check");
+        });
+    }
+
+    @Test
+    @DisplayName("class-adapter variant (extends adaptee AND implements target) is INFO")
+    void classAdapterIsInfo() {
+        String source = """
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class ClassAdapter extends Legacy implements Target {
+                private final Object dummy = new Object();
+                public ClassAdapter() { }
+                public String request() { return specificRequest(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ADAPTER);
+        assertThat(issues).anySatisfy(i -> {
+            assertThat(i.severity()).isEqualTo(Severity.INFO);
+            assertThat(i.issue()).containsIgnoringCase("class adapter");
+        });
+    }
+
+    @Test
+    @DisplayName("a well-formed object Adapter yields no issues")
+    void cleanAdapterHasNoIssues() {
+        String source = """
+            import java.util.Objects;
+            interface Target { String request(); }
+            class Legacy { String specificRequest() { return "x"; } }
+            public class GoodAdapter implements Target {
+                private final Legacy adaptee;
+                public GoodAdapter(Legacy a) { this.adaptee = Objects.requireNonNull(a, "adaptee"); }
+                public String request() { return adaptee.specificRequest(); }
+            }
+            """;
+        List<ValidationIssue> issues = engine.validateOne(source, Pattern.ADAPTER);
+        assertThat(issues)
+            .as("clean adapter should validate clean: " + issues)
+            .isEmpty();
     }
 }

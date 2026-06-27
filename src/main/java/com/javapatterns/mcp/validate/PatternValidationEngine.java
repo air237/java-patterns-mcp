@@ -38,7 +38,8 @@ public final class PatternValidationEngine {
             new BuilderValidator(),
             new ObserverValidator(),
             new StrategyValidator(),
-            new FactoryMethodValidator()
+            new FactoryMethodValidator(),
+            new AdapterValidator()
         );
     }
 
