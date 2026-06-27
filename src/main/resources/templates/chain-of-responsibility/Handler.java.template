@@ -1,0 +1,28 @@
+${PACKAGE_DECL}
+
+/**
+ * Chain of Responsibility — pass a {@code ${TYPE_NAME}} request along a
+ * linear chain of handlers. Each handler decides whether to process
+ * the request or forward it to the next link.
+ *
+ * <p>Classic uses: servlet filters, validation pipelines, authorization
+ * stacks, GUI event bubbling.</p>
+ */
+public abstract class ${TYPE_NAME}Handler {
+
+    protected ${TYPE_NAME}Handler next;
+
+    /** Fluent setter — returns the next handler so callers can build chains inline. */
+    public ${TYPE_NAME}Handler setNext(${TYPE_NAME}Handler next) {
+        this.next = next;
+        return next;
+    }
+
+    /** Default implementation: forward to the next handler, or stop. */
+    public String handle(String request) {
+        if (next != null) {
+            return next.handle(request);
+        }
+        return "[no handler accepted: " + request + "]";
+    }
+}

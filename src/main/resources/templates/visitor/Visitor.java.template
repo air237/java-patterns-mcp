@@ -1,0 +1,15 @@
+${PACKAGE_DECL}
+
+/**
+ * Visitor — one {@code visit(...)} overload per concrete
+ * {@link ${TYPE_NAME}} class.
+ *
+ * <p>Adding a new operation on the hierarchy means writing one
+ * concrete {@code ${TYPE_NAME}Visitor} implementation; the existing
+ * elements do not change at all.</p>
+ */
+public interface ${TYPE_NAME}Visitor {
+
+    String visit(Circle${TYPE_NAME} circle);
+    String visit(Square${TYPE_NAME} square);
+}

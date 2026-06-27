@@ -1,0 +1,15 @@
+${PACKAGE_DECL}
+
+/**
+ * Implementor — the "right half" of the Bridge: low-level rendering /
+ * computation API used by every {@link ${TYPE_NAME}}.
+ *
+ * <p>Add one concrete implementor per backend (vector / raster /
+ * remote / mocked-for-tests / ...). Each {@link ${TYPE_NAME}} can pair
+ * with any of them without subclassing further.</p>
+ */
+public interface ${TYPE_NAME}Renderer {
+
+    /** Backend-specific drawing primitive. Replace with your own API. */
+    String renderShape(String description);
+}

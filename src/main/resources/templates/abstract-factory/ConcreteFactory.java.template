@@ -1,0 +1,24 @@
+${PACKAGE_DECL}
+
+/**
+ * Concrete factory producing one matching variant of the
+ * {@code ${TYPE_NAME}} product family.
+ *
+ * <p>The "Light" prefix here is a placeholder for the variant name —
+ * rename to e.g. {@code MacOS${TYPE_NAME}Factory},
+ * {@code Windows${TYPE_NAME}Factory}, {@code Dark${TYPE_NAME}Factory}
+ * when you specialise. Add one concrete factory per variant; the
+ * client always works through {@link ${TYPE_NAME}Factory}.</p>
+ */
+public final class Light${TYPE_NAME}Factory implements ${TYPE_NAME}Factory {
+
+    @Override
+    public ${TYPE_NAME}Button createButton() {
+        return () -> "[light button]";
+    }
+
+    @Override
+    public ${TYPE_NAME}Checkbox createCheckbox() {
+        return () -> "[light checkbox]";
+    }
+}

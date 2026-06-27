@@ -1,0 +1,6 @@
+${PACKAGE_DECL}
+
+/** Second product of the {@code ${TYPE_NAME}} family. */
+public interface ${TYPE_NAME}Checkbox {
+    String paint();
+}

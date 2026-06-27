@@ -1,0 +1,9 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",            "template": "Element.java.template" },
+    { "fileName": "${TYPE_NAME}Visitor.java",     "template": "Visitor.java.template" },
+    { "fileName": "Circle${TYPE_NAME}.java",      "template": "ConcreteElementA.java.template" },
+    { "fileName": "Square${TYPE_NAME}.java",      "template": "ConcreteElementB.java.template" },
+    { "fileName": "Svg${TYPE_NAME}Visitor.java",  "template": "ConcreteVisitor.java.template" }
+  ]
+}

@@ -1,0 +1,29 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Colleague — a participant that knows about the mediator, NOT about
+ * other colleagues. Every outbound message goes through
+ * {@link #send(String)}; every inbound message arrives via
+ * {@link #receive(String, String)}.
+ */
+public abstract class ${TYPE_NAME}Colleague {
+
+    protected final String name;
+    protected final ${TYPE_NAME}Mediator mediator;
+
+    protected ${TYPE_NAME}Colleague(String name, ${TYPE_NAME}Mediator mediator) {
+        this.name = Objects.requireNonNull(name, "name");
+        this.mediator = Objects.requireNonNull(mediator, "mediator");
+    }
+
+    public String name() { return name; }
+
+    public final void send(String message) {
+        mediator.send(name, message);
+    }
+
+    /** Override to handle the inbound message. */
+    public abstract void receive(String from, String message);
+}

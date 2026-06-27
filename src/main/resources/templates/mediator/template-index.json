@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Mediator.java",     "template": "Mediator.java.template" },
+    { "fileName": "${TYPE_NAME}Colleague.java",    "template": "Colleague.java.template" },
+    { "fileName": "${TYPE_NAME}Hub.java",          "template": "ConcreteMediator.java.template" }
+  ]
+}

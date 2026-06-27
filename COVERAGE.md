@@ -59,13 +59,15 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 
 | Pattern | `pattern_examples` | `generate` | `detect` | `validate` | `refactor` |
 |---|:---:|:---:|:---:|:---:|:---:|
-| Abstract Factory | ✅ | ⛔ | ⛔ | ⚪ | ⚪ |
-| Bridge | ✅ | ⛔ | ⛔ | ⚪ | ⚪ |
-| Facade | ✅ | ⛔ | ⛔ | ⚪ | ⚪ |
-| Visitor | ✅ | ⛔ | ⛔ | ⚪ | ⚪ |
-| Chain of Responsibility | ✅ | ⛔ | ⛔ | ⚪ | ⚪ |
-| Mediator | ✅ | ⛔ | ⛔ | ⚪ | ⚪ |
-| **Group B subtotals** | **6/6** | **0/6** | **0/6** | – | – |
+| Abstract Factory | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Bridge | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Facade | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Visitor | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Chain of Responsibility | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| Mediator | ✅ | ✅ | ✅ | ⚪ | ⚪ |
+| **Group B subtotals** | **6/6** | **6/6** | **6/6** | – | – |
+
+> **🎉 Group B is now 6/6 — full target coverage (generate + detect).**
 
 ### C — examples-only
 
@@ -85,8 +87,8 @@ Legend: ✅ supported · ⛔ not implemented · ⚪ intentionally out of scope
 | Tool | Implemented | Out of 23 | % | Source of truth |
 |---|---:|---:|---:|---|
 | `pattern_examples` | 23 | 23 | 100% | `src/main/resources/examples/<slug>/` directories |
-| `generate_pattern` | 12 | 23 | 52% | `PatternGenerator.SUPPORTED` |
-| `detect_pattern` | 12 | 23 | 52% | `PatternDetectionEngine` detectors list |
+| `generate_pattern` | 18 | 23 | 78% | `PatternGenerator.SUPPORTED` |
+| `detect_pattern` | 18 | 23 | 78% | `PatternDetectionEngine` detectors list |
 | `validate_pattern` | 12 | 23 | 52% | `PatternValidationEngine` validators list |
 | `refactor_to_pattern` | 14 refactorings on 12 patterns | – | – | `RefactoringId` enum |
 
@@ -121,23 +123,15 @@ pass to the MCP tool.
 
 ### ✅ Group A — complete (12/12)
 
-All twelve Group-A patterns now have full 4-tool coverage:
-generate + detect + validate + refactor, alongside the
-universal pattern_examples support. Run the engine sanity
-tests (`PatternValidationEngineTest.supportedPatterns`,
-`PatternRefactoringEngineTest.supported`,
-`PatternDetectionEngineTest.supportedPatterns`,
-`PatternGenerator.SUPPORTED`) to confirm the registrations
-stay in sync.
+All twelve Group-A patterns have full 4-tool coverage: generate +
+detect + validate + refactor, alongside the universal
+pattern_examples support.
 
-### Group B — gaps remaining
-Generate + detect would be useful but `validate` and `refactor`
-are intentionally out of scope for this group (see the
-"Strategic grouping" section at the top of this file).
+### ✅ Group B — complete (6/6)
 
-* Missing generate templates: Abstract Factory · Bridge · Facade ·
-  Visitor · Chain of Responsibility · Mediator
-* Missing detectors: same six patterns
+All six Group-B patterns now have their target coverage:
+generate + detect. `validate` and `refactor` remain intentionally
+out of scope for this group (see "Strategic grouping" above).
 
 ### Group C — examples-only as intended
 Prototype · Flyweight · Interpreter · Iterator · Memento all ship
@@ -152,11 +146,13 @@ canonical example sources and intentionally nothing else.
 | Factory Method + Strategy | June 2026 | ~320 | 2 (refactorings) | 10 | Refactor-only round: closed the last two "validator without refactor" gaps with two atomic recipes (`factory-method-restrict-creator-ctor`, `strategy-add-functional-interface`). |
 | Decorator + State + Command | June 2026 | ~1140 | 6 (3 validators + 3 refactorings) | 22 | Validate + refactor double round for the three patterns that had detect + generate already. Validators each fire only on detector-shaped classes (zero false positives on the bundled canonical examples). Refactorings are all atomic "promote to final" modifier flips. |
 | Composite + Proxy | June 2026 | ~1090 | 10 (2 generate template sets + 2 validators + 2 refactorings) | 17 | Final full-rollout round that closed Group A. Composite adds a "children getter returns live collection" ERROR — a substantive structural rule, not just a modifier check. Proxy distinguishes itself from Decorator by name-hint heuristic (proxy / cache / lazy / auth / remote / …) so the validator stays out of Decorator's lane. |
+| Group B (all 6 patterns) | June 2026 | ~1310 | 30 (6 detectors + 24 template files) | 7 | Detect + generate roll-out for the whole Group B in one milestone. Each detector follows the same "structural fingerprint" approach: e.g. Abstract Factory requires ≥2 distinct-typed `create*()` methods AND ≥1 concrete impl; Bridge requires an abstract class holding an interface-typed field with concrete classes on both sides; Visitor requires `accept(Visitor)` + ≥2 overloaded `visit(...)` on the visitor type. Tests: a synthetic "bundled detected" case for each detector with confidence ≥ 1.0. |
 
-**Group-A total cost** (across 5 milestones): ~3440 LOC of new
-code, ~70 new tests. The average full-pattern rollout cost
-~480 LOC; refactor-only follow-ups are ~3x cheaper at ~160 LOC
-per pattern.
+**Project total cost** across 6 milestones: ~4750 LOC of new code,
+~77 new tests. The average full-pattern rollout cost ~480 LOC;
+refactor-only follow-ups are ~3x cheaper at ~160 LOC per pattern;
+detect-only follow-ups (Group B) are ~220 LOC per pattern
+(detector + template-set + 1 test).
 
 ---
 

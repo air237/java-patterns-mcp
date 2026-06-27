@@ -1,0 +1,27 @@
+${PACKAGE_DECL}
+
+/**
+ * Refined Abstraction — a concrete {@link ${TYPE_NAME}} that adds its
+ * own state and delegates the rendering work to its
+ * {@link ${TYPE_NAME}Renderer}.
+ *
+ * <p>Adding a new {@code ${TYPE_NAME}} variant means writing one
+ * subclass of {@link ${TYPE_NAME}} — no change to the renderer
+ * hierarchy. Adding a new backend means writing one
+ * {@link ${TYPE_NAME}Renderer} — no change to the abstraction
+ * hierarchy.</p>
+ */
+public final class Refined${TYPE_NAME} extends ${TYPE_NAME} {
+
+    private final String label;
+
+    public Refined${TYPE_NAME}(${TYPE_NAME}Renderer renderer, String label) {
+        super(renderer);
+        this.label = label;
+    }
+
+    @Override
+    public String draw() {
+        return renderer.renderShape(label);
+    }
+}

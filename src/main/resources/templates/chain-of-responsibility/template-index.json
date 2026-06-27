@@ -1,0 +1,7 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Handler.java",     "template": "Handler.java.template" },
+    { "fileName": "Auth${TYPE_NAME}Handler.java", "template": "ConcreteHandlerA.java.template" },
+    { "fileName": "Log${TYPE_NAME}Handler.java",  "template": "ConcreteHandlerB.java.template" }
+  ]
+}

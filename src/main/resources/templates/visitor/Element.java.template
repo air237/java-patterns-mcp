@@ -1,0 +1,16 @@
+${PACKAGE_DECL}
+
+/**
+ * Element — the root of a small object hierarchy that supports
+ * double-dispatch via {@link #accept(${TYPE_NAME}Visitor)}.
+ *
+ * <p>Use Visitor when the type hierarchy is stable but the
+ * operations on it change often: every new operation is one new
+ * visitor implementation, with no changes to {@code ${TYPE_NAME}}
+ * or its subclasses.</p>
+ */
+public interface ${TYPE_NAME} {
+
+    /** Double-dispatch entry point. */
+    String accept(${TYPE_NAME}Visitor visitor);
+}

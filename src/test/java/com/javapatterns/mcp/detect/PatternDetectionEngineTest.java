@@ -20,7 +20,7 @@ class PatternDetectionEngineTest {
     private final PatternExamplesLoader examples = PatternExamplesLoader.getInstance();
 
     @Test
-    @DisplayName("engine reports the expected supported patterns")
+    @DisplayName("engine reports the 18 supported patterns")
     void supportedPatterns() {
         assertThat(engine.supportedPatterns()).containsExactlyInAnyOrder(
             Pattern.SINGLETON,
@@ -34,7 +34,13 @@ class PatternDetectionEngineTest {
             Pattern.PROXY,
             Pattern.TEMPLATE_METHOD,
             Pattern.STATE,
-            Pattern.COMMAND
+            Pattern.COMMAND,
+            Pattern.ABSTRACT_FACTORY,
+            Pattern.BRIDGE,
+            Pattern.FACADE,
+            Pattern.VISITOR,
+            Pattern.CHAIN_OF_RESPONSIBILITY,
+            Pattern.MEDIATOR
         );
     }
 
@@ -309,6 +315,162 @@ class PatternDetectionEngineTest {
             .filter(h -> h.pattern() == Pattern.COMMAND)
             .findFirst().orElseThrow();
         assertThat(hit.className()).isEqualTo("Command");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Abstract Factory is detected on a factory interface with ≥ 2 product methods + a concrete factory")
+    void detectsAbstractFactorySnippet() {
+        String source = """
+            package demo;
+            interface Button { String paint(); }
+            interface Checkbox { String paint(); }
+            interface GUIFactory {
+                Button createButton();
+                Checkbox createCheckbox();
+            }
+            final class MacFactory implements GUIFactory {
+                public Button createButton()   { return () -> "mac btn"; }
+                public Checkbox createCheckbox() { return () -> "mac chk"; }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.ABSTRACT_FACTORY)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("GUIFactory");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Bridge is detected on an abstraction holding an implementor field with concrete sub-/impl-classes")
+    void detectsBridgeSnippet() {
+        String source = """
+            package demo;
+            interface Renderer { String render(String s); }
+            abstract class Shape {
+                protected final Renderer renderer;
+                protected Shape(Renderer r) { this.renderer = r; }
+                public abstract String draw();
+            }
+            final class Circle extends Shape {
+                Circle(Renderer r) { super(r); }
+                public String draw() { return renderer.render("circle"); }
+            }
+            final class VectorRenderer implements Renderer {
+                public String render(String s) { return "<v>" + s + "</v>"; }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.BRIDGE)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Shape");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Facade is detected on a class with ≥ 2 subsystem fields coordinated in one public method")
+    void detectsFacadeSnippet() {
+        String source = """
+            package demo;
+            final class Inventory { boolean reserve(String s, int q) { return true; } }
+            final class Payment   { String charge(String c, double a) { return "PMT"; } }
+            final class Shipping  { String dispatch(String s, int q, String a) { return "TRK"; } }
+            final class OrderFacade {
+                private final Inventory inventory = new Inventory();
+                private final Payment   payment   = new Payment();
+                private final Shipping  shipping  = new Shipping();
+                public String placeOrder(String sku, int q, String card, String addr) {
+                    if (!inventory.reserve(sku, q)) return "FAIL";
+                    String p = payment.charge(card, q * 9.99);
+                    String t = shipping.dispatch(sku, q, addr);
+                    return "OK " + p + " " + t;
+                }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.FACADE)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("OrderFacade");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Visitor is detected on element + visitor abstractions with double-dispatch concrete elements")
+    void detectsVisitorSnippet() {
+        String source = """
+            package demo;
+            interface Shape { String accept(ShapeVisitor v); }
+            interface ShapeVisitor {
+                String visit(Circle c);
+                String visit(Square s);
+            }
+            final class Circle implements Shape {
+                public String accept(ShapeVisitor v) { return v.visit(this); }
+            }
+            final class Square implements Shape {
+                public String accept(ShapeVisitor v) { return v.visit(this); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.VISITOR)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Shape");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Chain of Responsibility is detected on a handler with a self-ref next field and concrete subclasses")
+    void detectsChainOfResponsibilitySnippet() {
+        String source = """
+            package demo;
+            abstract class Handler {
+                protected Handler next;
+                public Handler setNext(Handler n) { this.next = n; return n; }
+                public String handle(String r) {
+                    return next != null ? next.handle(r) : "no-op";
+                }
+            }
+            final class AuthHandler extends Handler {
+                public String handle(String r) {
+                    return r.startsWith("AUTH:") ? "[Auth]" : super.handle(r);
+                }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.CHAIN_OF_RESPONSIBILITY)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("Handler");
+        assertThat(hit.confidence()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("Mediator is detected on a mediator with send + register methods and ≥ 1 colleague")
+    void detectsMediatorSnippet() {
+        String source = """
+            package demo;
+            interface ChatMediator {
+                void send(String from, String msg);
+                ChatMediator register(Colleague c);
+            }
+            abstract class Colleague {
+                protected final ChatMediator mediator;
+                protected final String name;
+                Colleague(String n, ChatMediator m) { this.name = n; this.mediator = m; }
+                public String name() { return name; }
+                public abstract void receive(String from, String msg);
+                public void send(String msg) { mediator.send(name, msg); }
+            }
+            """;
+        List<DetectedPattern> hits = engine.detect(source);
+        DetectedPattern hit = hits.stream()
+            .filter(h -> h.pattern() == Pattern.MEDIATOR)
+            .findFirst().orElseThrow();
+        assertThat(hit.className()).isEqualTo("ChatMediator");
         assertThat(hit.confidence()).isEqualTo(1.0);
     }
 

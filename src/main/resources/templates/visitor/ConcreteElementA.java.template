@@ -1,0 +1,18 @@
+${PACKAGE_DECL}
+
+/** First concrete element — a circle. */
+public final class Circle${TYPE_NAME} implements ${TYPE_NAME} {
+
+    private final double radius;
+
+    public Circle${TYPE_NAME}(double radius) {
+        this.radius = radius;
+    }
+
+    public double radius() { return radius; }
+
+    @Override
+    public String accept(${TYPE_NAME}Visitor visitor) {
+        return visitor.visit(this);
+    }
+}

@@ -1,0 +1,19 @@
+${PACKAGE_DECL}
+
+/**
+ * Mediator — centralises many-to-many communication between
+ * {@link ${TYPE_NAME}Colleague}s. Each colleague talks to the mediator
+ * instead of to its peers; the mediator decides who else to notify.
+ *
+ * <p>Classic uses: chat rooms, traffic-control coordinators,
+ * GUI form-field coordination ("when X changes, validate Y and
+ * toggle Z").</p>
+ */
+public interface ${TYPE_NAME}Mediator {
+
+    /** Register a participant so it receives broadcasts. */
+    ${TYPE_NAME}Mediator register(${TYPE_NAME}Colleague colleague);
+
+    /** Fan-out: deliver {@code message} from {@code sender} to every other colleague. */
+    void send(String sender, String message);
+}

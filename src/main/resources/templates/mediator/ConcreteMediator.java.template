@@ -1,0 +1,36 @@
+${PACKAGE_DECL}
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Concrete mediator — a simple hub that fans out messages to every
+ * registered {@link ${TYPE_NAME}Colleague} except the sender, and
+ * keeps an audit log of every dispatch.
+ */
+public final class ${TYPE_NAME}Hub implements ${TYPE_NAME}Mediator {
+
+    private final List<${TYPE_NAME}Colleague> members = new ArrayList<>();
+    private final List<String> auditLog = new ArrayList<>();
+
+    @Override
+    public ${TYPE_NAME}Mediator register(${TYPE_NAME}Colleague colleague) {
+        members.add(colleague);
+        return this;
+    }
+
+    @Override
+    public void send(String sender, String message) {
+        auditLog.add(sender + ": " + message);
+        for (${TYPE_NAME}Colleague c : members) {
+            if (!c.name().equals(sender)) {
+                c.receive(sender, message);
+            }
+        }
+    }
+
+    /** Defensive snapshot of the audit log. */
+    public List<String> auditLog() {
+        return List.copyOf(auditLog);
+    }
+}

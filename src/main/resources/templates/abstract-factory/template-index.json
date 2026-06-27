@@ -1,0 +1,8 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Factory.java",     "template": "Factory.java.template" },
+    { "fileName": "${TYPE_NAME}Button.java",      "template": "ProductA.java.template" },
+    { "fileName": "${TYPE_NAME}Checkbox.java",    "template": "ProductB.java.template" },
+    { "fileName": "Light${TYPE_NAME}Factory.java","template": "ConcreteFactory.java.template" }
+  ]
+}

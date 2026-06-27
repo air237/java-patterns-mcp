@@ -1,0 +1,12 @@
+${PACKAGE_DECL}
+
+/**
+ * Abstract Factory — declares a family of related products. Concrete
+ * factories produce a matching set (e.g. macOS-style or Windows-style
+ * components). Client code uses only the product interfaces and the
+ * factory interface and never names a concrete class.
+ */
+public interface ${TYPE_NAME}Factory {
+    ${TYPE_NAME}Button createButton();
+    ${TYPE_NAME}Checkbox createCheckbox();
+}

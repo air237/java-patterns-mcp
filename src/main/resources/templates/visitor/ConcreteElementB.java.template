@@ -1,0 +1,18 @@
+${PACKAGE_DECL}
+
+/** Second concrete element — a square. */
+public final class Square${TYPE_NAME} implements ${TYPE_NAME} {
+
+    private final double side;
+
+    public Square${TYPE_NAME}(double side) {
+        this.side = side;
+    }
+
+    public double side() { return side; }
+
+    @Override
+    public String accept(${TYPE_NAME}Visitor visitor) {
+        return visitor.visit(this);
+    }
+}

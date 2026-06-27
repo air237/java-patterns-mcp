@@ -1,0 +1,9 @@
+${PACKAGE_DECL}
+
+/** Subsystem C — shipping / dispatch. Placeholder; replace with the real API. */
+public final class ${TYPE_NAME}Shipping {
+
+    public String dispatch(String sku, int quantity, String address) {
+        return "TRK-" + Math.abs((sku + address).hashCode() % 1_000_000);
+    }
+}

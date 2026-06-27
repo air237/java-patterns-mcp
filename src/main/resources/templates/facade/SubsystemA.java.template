@@ -1,0 +1,9 @@
+${PACKAGE_DECL}
+
+/** Subsystem A — inventory reservation. Placeholder; replace with the real API. */
+public final class ${TYPE_NAME}Inventory {
+
+    public boolean reserve(String sku, int quantity) {
+        return !"OUT_OF_STOCK".equals(sku) && quantity > 0;
+    }
+}

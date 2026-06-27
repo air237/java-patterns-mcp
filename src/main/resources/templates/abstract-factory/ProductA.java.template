@@ -1,0 +1,6 @@
+${PACKAGE_DECL}
+
+/** First product of the {@code ${TYPE_NAME}} family. */
+public interface ${TYPE_NAME}Button {
+    String paint();
+}

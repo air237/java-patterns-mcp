@@ -1,0 +1,13 @@
+${PACKAGE_DECL}
+
+/** Concrete handler — accepts requests starting with {@code "LOG:"}. */
+public final class Log${TYPE_NAME}Handler extends ${TYPE_NAME}Handler {
+
+    @Override
+    public String handle(String request) {
+        if (request.startsWith("LOG:")) {
+            return "[Log] " + request.substring(4);
+        }
+        return super.handle(request);
+    }
+}

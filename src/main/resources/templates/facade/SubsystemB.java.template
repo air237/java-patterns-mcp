@@ -1,0 +1,9 @@
+${PACKAGE_DECL}
+
+/** Subsystem B — payment processing. Placeholder; replace with the real API. */
+public final class ${TYPE_NAME}Payment {
+
+    public String charge(String creditCard, double amount) {
+        return "PMT-" + Math.abs(creditCard.hashCode() % 100_000);
+    }
+}

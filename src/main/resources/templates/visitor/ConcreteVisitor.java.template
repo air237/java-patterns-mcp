@@ -1,0 +1,20 @@
+${PACKAGE_DECL}
+
+/**
+ * Concrete visitor — renders every {@link ${TYPE_NAME}} variant as an
+ * SVG fragment. Add new operations by writing more
+ * {@link ${TYPE_NAME}Visitor} implementations; never edit the element
+ * hierarchy.
+ */
+public final class Svg${TYPE_NAME}Visitor implements ${TYPE_NAME}Visitor {
+
+    @Override
+    public String visit(Circle${TYPE_NAME} c) {
+        return "<circle r=\"" + c.radius() + "\"/>";
+    }
+
+    @Override
+    public String visit(Square${TYPE_NAME} s) {
+        return "<rect width=\"" + s.side() + "\" height=\"" + s.side() + "\"/>";
+    }
+}

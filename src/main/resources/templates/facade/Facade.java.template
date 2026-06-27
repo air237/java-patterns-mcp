@@ -1,0 +1,34 @@
+${PACKAGE_DECL}
+
+/**
+ * Facade — a thin layer that hides a messy multi-step workflow behind a
+ * single, stable API.
+ *
+ * <p>Replace the three placeholder subsystems
+ * ({@link ${TYPE_NAME}Inventory}, {@link ${TYPE_NAME}Payment},
+ * {@link ${TYPE_NAME}Shipping}) with your real ones. The point is that
+ * the client only knows about {@code ${TYPE_NAME}Facade}; the
+ * subsystems can be replaced, reordered or expanded without changing
+ * a single call site.</p>
+ */
+public final class ${TYPE_NAME}Facade {
+
+    private final ${TYPE_NAME}Inventory inventory = new ${TYPE_NAME}Inventory();
+    private final ${TYPE_NAME}Payment   payment   = new ${TYPE_NAME}Payment();
+    private final ${TYPE_NAME}Shipping  shipping  = new ${TYPE_NAME}Shipping();
+
+    /**
+     * Single-call workflow that coordinates the three subsystems in
+     * the order they belong. Returns a one-line human-readable result
+     * for demonstration purposes.
+     */
+    public String run(String sku, int quantity, String creditCard, String address) {
+        boolean reserved = inventory.reserve(sku, quantity);
+        if (!reserved) {
+            return "FAILED: out of stock for " + sku;
+        }
+        String paymentId   = payment.charge(creditCard, quantity * 9.99);
+        String trackingNum = shipping.dispatch(sku, quantity, address);
+        return "OK: paid=" + paymentId + " tracking=" + trackingNum;
+    }
+}

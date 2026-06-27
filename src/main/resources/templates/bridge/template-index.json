@@ -1,0 +1,8 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}.java",          "template": "Abstraction.java.template" },
+    { "fileName": "${TYPE_NAME}Renderer.java",  "template": "Implementor.java.template" },
+    { "fileName": "Refined${TYPE_NAME}.java",   "template": "RefinedAbstraction.java.template" },
+    { "fileName": "Vector${TYPE_NAME}Renderer.java", "template": "ConcreteImplementor.java.template" }
+  ]
+}

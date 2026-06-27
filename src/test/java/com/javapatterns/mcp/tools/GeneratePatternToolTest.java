@@ -135,8 +135,9 @@ class GeneratePatternToolTest {
     @Test
     @DisplayName("unsupported pattern returns a clear error directing the caller to pattern_examples")
     void unsupportedPatternIsError() {
+        // Group-C pattern — intentionally not in PatternGenerator.SUPPORTED.
         CallToolResult r = tool.handle(Map.of(
-            "pattern", "visitor",
+            "pattern", "prototype",
             "typeName", "Shape"
         ));
         assertThat(r.isError()).isTrue();

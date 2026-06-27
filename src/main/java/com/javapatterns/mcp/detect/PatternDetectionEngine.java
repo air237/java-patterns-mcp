@@ -58,7 +58,13 @@ public final class PatternDetectionEngine {
             new ProxyDetector(),
             new TemplateMethodDetector(),
             new StateDetector(),
-            new CommandDetector()
+            new CommandDetector(),
+            new AbstractFactoryDetector(),
+            new BridgeDetector(),
+            new FacadeDetector(),
+            new VisitorDetector(),
+            new ChainOfResponsibilityDetector(),
+            new MediatorDetector()
         );
     }
 

@@ -1,0 +1,26 @@
+${PACKAGE_DECL}
+
+import java.util.Objects;
+
+/**
+ * Abstraction — the "left half" of the Bridge: a hierarchy of
+ * {@code ${TYPE_NAME}} types that delegate low-level drawing /
+ * rendering / computation to a separate {@link ${TYPE_NAME}Renderer}
+ * implementor.
+ *
+ * <p>Without Bridge you would have a 2-dimensional class explosion
+ * (e.g. {@code VectorCircle}, {@code RasterCircle},
+ * {@code VectorSquare}, {@code RasterSquare}). With Bridge you have
+ * N + M classes instead of N × M.</p>
+ */
+public abstract class ${TYPE_NAME} {
+
+    /** The "implementor" — held by composition, not inheritance. */
+    protected final ${TYPE_NAME}Renderer renderer;
+
+    protected ${TYPE_NAME}(${TYPE_NAME}Renderer renderer) {
+        this.renderer = Objects.requireNonNull(renderer, "renderer");
+    }
+
+    public abstract String draw();
+}

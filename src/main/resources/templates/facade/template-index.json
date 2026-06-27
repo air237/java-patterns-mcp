@@ -1,0 +1,8 @@
+{
+  "files": [
+    { "fileName": "${TYPE_NAME}Facade.java",      "template": "Facade.java.template" },
+    { "fileName": "${TYPE_NAME}Inventory.java",   "template": "SubsystemA.java.template" },
+    { "fileName": "${TYPE_NAME}Payment.java",     "template": "SubsystemB.java.template" },
+    { "fileName": "${TYPE_NAME}Shipping.java",    "template": "SubsystemC.java.template" }
+  ]
+}

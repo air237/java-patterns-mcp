@@ -1,0 +1,19 @@
+${PACKAGE_DECL}
+
+/**
+ * Concrete Implementor — vector-rendering backend for the
+ * {@link ${TYPE_NAME}} hierarchy.
+ *
+ * <p>The "Vector" prefix is a placeholder for the variant name;
+ * rename to {@code Raster${TYPE_NAME}Renderer},
+ * {@code Remote${TYPE_NAME}Renderer}, {@code Mock${TYPE_NAME}Renderer}
+ * when you specialise. Each new implementor is one class — none of
+ * the {@link ${TYPE_NAME}} subclasses need to change.</p>
+ */
+public final class Vector${TYPE_NAME}Renderer implements ${TYPE_NAME}Renderer {
+
+    @Override
+    public String renderShape(String description) {
+        return "<vector>" + description + "</vector>";
+    }
+}
